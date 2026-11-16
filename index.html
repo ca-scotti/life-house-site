@@ -56,6 +56,38 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .cbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #a07a2a}
 .cbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){#chc.shake{animation:none}}
+.ob{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:rgba(10,12,20,.3);padding:16px;font-family:'Pixelify Sans',system-ui,sans-serif}
+.ob.show{display:flex}
+.obc{width:440px;max-width:100%;max-height:100%;overflow-y:auto;box-sizing:border-box;background:rgba(27,29,43,.74);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.18);box-shadow:0 5px 0 rgba(17,19,29,.6);padding:18px;color:var(--ink);display:flex;flex-direction:column;gap:14px;animation:pop .2s ease-out}
+.obc h2{margin:0;font-size:22px;font-weight:600}
+.obc .lead{margin:-8px 0 0;color:var(--muted);font-size:14px}
+.q{display:flex;flex-direction:column;gap:8px}
+.q .ql{font-size:15px;display:flex;justify-content:space-between;gap:8px}
+.q .qh{color:var(--muted);font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:14px;color:var(--ink);background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.18);padding:4px 10px;cursor:pointer}
+.chip:hover{border-color:rgba(255,207,107,.7)}
+.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#3a2a10}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.chip:focus-visible,.obc button:focus-visible,.obc textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.oberr{color:#ff9f8f;font-size:13px;min-height:16px;margin-top:-6px}
+.obrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.oblink{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;text-decoration:underline}
+.chat{display:flex;flex-direction:column;gap:8px;height:220px;overflow-y:auto;padding:10px;background:rgba(10,12,20,.35);border:2px solid rgba(255,255,255,.1)}
+.msg{max-width:85%;padding:7px 10px;font-size:14px;line-height:1.35;white-space:pre-wrap;word-wrap:break-word}
+.msg.bot{align-self:flex-start;background:rgba(255,255,255,.1)}
+.msg.me{align-self:flex-end;background:rgba(255,207,107,.9);color:#3a2a10}
+.msg .add{display:block;margin-top:4px;color:var(--acc);font-size:13px}
+.compose{display:flex;gap:8px;align-items:flex-end}
+.compose textarea{flex:1;min-width:0;font:inherit;font-size:15px;resize:none;height:44px;padding:8px 10px;box-sizing:border-box;background:#1b1d2b;color:var(--ink);border:2px solid #3a3e58}
+.compose textarea:focus{border-color:var(--acc);outline:none}
+.sbtn{font:inherit;font-size:15px;padding:9px 12px;border:2px solid #11131d;background:#3a3e58;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 #11131d}
+.preview{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
+.preview span{padding:2px 8px;border:2px solid rgba(255,255,255,.18);color:var(--muted)}
+.preview b{color:var(--ink);font-weight:400}
+.note{font-size:12px;color:var(--muted);margin-top:-6px}
+.redo{font:inherit;font-size:14px;margin-top:6px;background:none;border:2px solid rgba(255,255,255,.18);color:var(--ink);padding:6px 10px;cursor:pointer;width:100%;text-align:left}
+.redo:hover{border-color:var(--acc)}
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}}
 .pane{position:fixed;z-index:2;width:280px;max-width:calc(100vw - 32px);background:rgba(27,29,43,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 0 rgba(17,19,29,.6);padding:12px 14px 14px;color:var(--ink);display:none}
 .pane.show{display:block;animation:pop .18s ease-out}
@@ -102,7 +134,28 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 <aside class="drawer" id="drawer" aria-label="Menu">
   <div class="dh"><h2>Menu</h2><button class="x" id="dx" aria-label="Close menu">x</button></div>
   <section><h3>To-dos</h3><div id="todos"></div></section>
+  <section><h3>Your house</h3><button class="redo" id="redo">Redo setup</button></section>
 </aside>
+<div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obt">
+  <div class="obc" id="ob1">
+    <h2 id="obt">Let's build your house</h2>
+    <p class="lead">A few quick questions. Each part of your life becomes a room.</p>
+    <div class="q"><div class="ql"><span>Which parts of your life do you want to look after?</span><span class="qh" id="cnt">Pick up to 4</span></div><div class="chips" id="qa"></div></div>
+    <div class="q"><div class="ql"><span>What gets in your way the most?</span></div><div class="chips" id="qb"></div></div>
+    <div class="q"><div class="ql"><span>How often should the house check in on you?</span></div><div class="chips" id="qc"></div></div>
+    <div class="oberr" id="oberr" role="alert"></div>
+    <div class="obrow"><button class="oblink" id="obskip">Skip, show me the demo house</button><button class="cbtn" id="obnext">Next</button></div>
+  </div>
+  <div class="obc" id="ob2" style="display:none">
+    <h2>Tell me about your life</h2>
+    <p class="lead">Write like you'd text a friend. Anything you need to do becomes a to-do in the right room.</p>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="compose"><textarea id="ta" placeholder="I need to call my sister and I keep skipping the gym..." aria-label="Message"></textarea><button class="sbtn" id="send">Send</button></div>
+    <div class="note">This helper runs in your browser and looks for things like "I need to...". It isn't a full AI yet.</div>
+    <div class="preview" id="pv"></div>
+    <div class="obrow"><button class="oblink" id="obback">Back</button><button class="cbtn" id="obgo">Move in</button></div>
+  </div>
+</div>
 <div class="pane" id="pane"><button class="x" id="px" aria-label="Close">x</button><h2><span id="pn"></span><span class="tag" id="pt"></span></h2><p id="pd"></p><ul id="pl"></ul></div>
 <script>
 const WH=62,PH=12,RS=88,GAP=92,HS=180;
@@ -414,7 +467,7 @@ let paneRoom=-1;
 function fillPane(ri){
   const r=rooms[ri],n=left(r.name);
   const tg=document.getElementById('pt');tg.textContent=r.w>.45?'Lights on':'Lights dim';tg.className='tag'+(r.w>.45?' lit':'');
-  document.getElementById('pd').textContent=n===0?'All done here. Nice work.':(r.w>.45?`${n} left. Each one finished gives you a chest.`:`${n} waiting here. One brings the lights back.`);
+  document.getElementById('pd').textContent=r.spare?'An empty room. Add a part of your life in setup to move something in.':n===0?'All done here. Nice work.':(r.w>.45?`${n} left. Each one finished gives you a chest.`:`${n} waiting here. One brings the lights back.`);
   const pl=document.getElementById('pl');pl.innerHTML=taskList(ri);wireTasks(pl);
 }
 function finishTask(ri,i){
@@ -492,7 +545,7 @@ document.getElementById('px').onclick=closePane;
 const drawer=document.getElementById('drawer'),mb=document.getElementById('mb');
 function renderTodos(){
   const el=document.getElementById('todos');
-  el.innerHTML=rooms.map((r,i)=>`<div class="grp"><button class="gh" data-i="${i}"><span class="dot${r.w>.45?' lit':''}"></span><span class="gn">${r.name}</span><span class="cnt">${left(r.name)} left</span></button><ul>${taskList(i)}</ul></div>`).join('');
+  el.innerHTML=rooms.map((r,i)=>r.spare?'':`<div class="grp"><button class="gh" data-i="${i}"><span class="dot${r.w>.45?' lit':''}"></span><span class="gn">${r.name}</span><span class="cnt">${left(r.name)} left</span></button><ul>${taskList(i)}</ul></div>`).join('');
   el.querySelectorAll('.gh').forEach(b=>b.onclick=()=>{closePane();sel=+b.dataset.i});
   wireTasks(el);
 }
@@ -500,6 +553,87 @@ function openDrawer(){renderTodos();drawer.classList.add('open');mb.setAttribute
 function closeDrawer(){drawer.classList.remove('open');mb.setAttribute('aria-expanded','false')}
 mb.onclick=openDrawer;document.getElementById('dx').onclick=()=>{closeDrawer();mb.focus()};
 addEventListener('keydown',e=>{if(e.key==='Escape'){closePane();closeDrawer()}});
+
+const AREAS=[
+ {id:'work',label:'Work',slot:0,kw:['work','job','boss','client','meeting','email','emails','office','deck','slides','project','manager','career','interview'],start:['Clear your inbox','Write down tomorrow\'s top 3','Tidy your desk']},
+ {id:'study',label:'Study',slot:0,kw:['study','exam','exams','class','homework','course','school','uni','university','thesis','essay','lecture','professor'],start:['Review this week\'s notes','Start the next assignment','Make a study plan for the week']},
+ {id:'money',label:'Money',slot:0,kw:['money','bill','bills','rent','budget','tax','taxes','bank','pay','savings','invoice','subscription'],start:['Pay any open bills','Check this month\'s budget','Cancel one subscription you don\'t use']},
+ {id:'family',label:'Family',slot:1,kw:['family','mom','mum','mother','dad','father','sister','brother','parents','grandma','grandpa','kids','son','daughter','partner'],start:['Call someone in your family','Plan a family meal','Send a photo to the family chat']},
+ {id:'friends',label:'Friends',slot:1,kw:['friend','friends','party','birthday','catch up','hang out','drinks'],start:['Text a friend you miss','Plan a coffee catch-up','Write down upcoming birthdays']},
+ {id:'home',label:'Home',slot:1,kw:['home','clean','cleaning','laundry','dishes','apartment','flat','groceries','cook','cooking','fridge','plants'],start:['Do one load of laundry','Clear the kitchen counter','Make a grocery list']},
+ {id:'fitness',label:'Fitness',slot:2,kw:['gym','run','running','workout','yoga','exercise','training','swim','swimming','sport','pilates','bike'],start:['Go for a 20 minute walk or run','Book your next class','Pack your gym bag']},
+ {id:'health',label:'Health',slot:2,kw:['health','doctor','dentist','sleep','meds','medication','therapy','therapist','checkup','water'],start:['Book the appointment you keep postponing','Go to bed 30 minutes earlier tonight','Drink a glass of water now']},
+ {id:'language',label:'Language',slot:3,kw:['french','spanish','german','italian','portuguese','japanese','language','duolingo','vocab','vocabulary','english'],start:['Do a 10 minute lesson','Watch something in that language','Review 20 flashcards']},
+ {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','book'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
+];
+const BLOCK=['Getting started','Remembering things','Boring tasks','Too much at once'];
+const FREQ=['Every day','A few times a week','Only when I open it'];
+const BASE=rooms.map(r=>({name:r.name,own:r.items.map(it=>it.own),w:r.w}));
+const ob=document.getElementById('ob'),ob1=document.getElementById('ob1'),ob2=document.getElementById('ob2');
+let pick=[],block=null,freq=null,draft={},chatLog=[];
+const A=id=>AREAS.find(a=>a.id===id);
+function chipsHTML(list,attr){return list.map(x=>`<button class="chip" ${attr}="${esc(x.id||x)}" aria-pressed="false">${esc(x.label||x)}</button>`).join('')}
+document.getElementById('qa').innerHTML=chipsHTML(AREAS,'data-a');
+document.getElementById('qb').innerHTML=chipsHTML(BLOCK,'data-b');
+document.getElementById('qc').innerHTML=chipsHTML(FREQ,'data-c');
+function syncChips(){
+  document.querySelectorAll('[data-a]').forEach(b=>{const on=pick.includes(b.dataset.a);b.setAttribute('aria-pressed',on);b.disabled=!on&&pick.length>=4});
+  document.querySelectorAll('[data-b]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b===block));
+  document.querySelectorAll('[data-c]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===freq));
+  document.getElementById('cnt').textContent=pick.length?`${pick.length} of 4 picked`:'Pick up to 4';
+}
+document.getElementById('qa').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.a;pick=pick.includes(id)?pick.filter(x=>x!==id):pick.concat(id).slice(0,4);document.getElementById('oberr').textContent='';syncChips()};
+document.getElementById('qb').onclick=e=>{const b=e.target.closest('[data-b]');if(b){block=b.dataset.b;syncChips()}};
+document.getElementById('qc').onclick=e=>{const b=e.target.closest('[data-c]');if(b){freq=b.dataset.c;syncChips()}};
+const TIP={'Getting started':'Since starting is the hard part, I\'ll keep every to-do tiny.','Remembering things':'Tell me everything floating in your head, and I\'ll put it in a room so you don\'t have to remember it.','Boring tasks':'Boring ones are where the chests help. Every finished task gets one.','Too much at once':'We\'ll keep each room short. You only need one thing at a time.'};
+function say(text,who,add){chatLog.push({text,who,add});const c=document.getElementById('chat');const d=document.createElement('div');d.className='msg '+who;d.textContent=text;if(add){const s=document.createElement('span');s.className='add';s.textContent=add;d.appendChild(s)}c.appendChild(d);c.scrollTop=c.scrollHeight}
+function preview(){document.getElementById('pv').innerHTML=pick.map(id=>`<span><b>${esc(A(id).label)}</b> ${(draft[id]||[]).length+3} to-dos</span>`).join('')}
+document.getElementById('obnext').onclick=()=>{
+  if(!pick.length){document.getElementById('oberr').textContent='Pick at least one part of your life to continue.';return}
+  ob1.style.display='none';ob2.style.display='flex';
+  if(!chatLog.length){const names=pick.map(id=>A(id).label);say(`Nice. Your house will have ${names.length===1?'one room':names.length+' rooms'}: ${names.join(', ')}.${block?' '+TIP[block]:''}\n\nWhat's on your mind? What have you been putting off?`,'bot')}
+  preview();document.getElementById('ta').focus();
+};
+document.getElementById('obback').onclick=()=>{ob2.style.display='none';ob1.style.display='flex'};
+function areaFor(text){const t=' '+text.toLowerCase()+' ';let best=null,score=0;for(const id of pick){const s=A(id).kw.filter(k=>new RegExp('\\b'+k+'\\b').test(t)).length;if(s>score){score=s;best=id}}return best}
+function extract(text){
+  const out=[],re=/\b(?:i\s+(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to|i'?d\s+like\s+to|remind\s+me\s+to|don'?t\s+forget\s+to|i\s+keep\s+(?:forgetting|putting\s+off)(?:\s+to)?|todo:?)\s+([^.!?\n;]+)/gi;let m;
+  while((m=re.exec(text))){for(let part of m[1].split(/\s*,\s*|\s+and\s+(?:also\s+)?(?:i\s+)?(?=[a-z]+\s)/i)){part=part.replace(/\s+(?:but|because|so)\b.*$/i,'').trim();
+      let prev;do{prev=part;part=part.replace(/^(?:and|also|then|plus)\s+/i,'').replace(/^(?:i\s+)?(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to\s+/i,'').replace(/^i\s+keep\s+(?:forgetting|putting\s+off)\s+(?:to\s+)?/i,'').trim()}while(part!==prev);
+      if(part.split(' ').length>=2&&part.length<=80){const t=part.charAt(0).toUpperCase()+part.slice(1);if(!out.some(o=>o.toLowerCase()===t.toLowerCase()))out.push(t)}}}
+  return out;
+}
+const NUDGE=['What\'s one small thing you could do this week?','Is there something you keep meaning to do for someone you love?','Anything with a deadline coming up?','What would make you feel lighter if it were done?'];let nudge=0;
+function send(){
+  const ta=document.getElementById('ta'),text=ta.value.trim();if(!text)return;ta.value='';say(text,'me');
+  const tasks=extract(text),added=[];
+  for(const t of tasks){const id=areaFor(t)||areaFor(text)||pick[0];(draft[id]=draft[id]||[]).push(t);added.push(`+ ${t} → ${A(id).label}`)}
+  setTimeout(()=>{
+    if(added.length)say(added.length===1?'Got it, I added that.':`Got it, I added ${added.length} things.`,'bot',added.join('\n'));
+    else{const id=areaFor(text);say(id?`Sounds like ${A(id).label} is on your mind. What's one thing you need to do there? Try starting with "I need to..."`:NUDGE[nudge++%NUDGE.length]+' Try starting with "I need to..."','bot')}
+    preview();
+  },350);
+}
+document.getElementById('send').onclick=send;
+document.getElementById('ta').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+function store(cfg){try{localStorage.setItem('lh-setup',JSON.stringify(cfg))}catch(_){}}
+function applySetup(cfg){
+  for(const k in TODO)delete TODO[k];
+  const slots=[null,null,null,null];
+  for(const id of cfg.pick){const a=A(id);if(!a)continue;let s=slots[a.slot]===null?a.slot:slots.indexOf(null);if(s<0)continue;slots[s]=id}
+  rooms.forEach((r,ri)=>{const id=slots[ri],b=BASE[ri];r.items.forEach((it,k)=>{it.own=id?b.own[k]:false;it.t0=0;it.landed=1});
+    if(id){const a=A(id);r.name=a.label;r.spare=false;r.w=.6;TODO[r.name]=(cfg.draft[id]||[]).concat(a.start).map(t=>({t,done:false}))}
+    else{r.name='Spare room';r.spare=true;r.w=0}});
+  closePane();
+}
+function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);rooms.forEach((r,ri)=>{const b=BASE[ri];r.name=b.name;r.spare=false;r.w=b.w;r.items.forEach((it,k)=>it.own=b.own[k])})}
+const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
+function openSetup(){pick=[];block=null;freq=null;draft={};chatLog=[];document.getElementById('chat').innerHTML='';syncChips();ob2.style.display='none';ob1.style.display='flex';ob.classList.add('show');closeDrawer();closePane()}
+document.getElementById('obgo').onclick=()=>{const cfg={pick,block,freq,draft};applySetup(cfg);store(cfg);ob.classList.remove('show');if(drawer.classList.contains('open'))renderTodos()};
+document.getElementById('obskip').onclick=()=>{resetDemo();store({demo:true});ob.classList.remove('show')};
+document.getElementById('redo').onclick=openSetup;
+(()=>{let s=null;try{s=JSON.parse(localStorage.getItem('lh-setup')||'null')}catch(_){}
+  if(s&&s.pick&&s.pick.length)applySetup(s);else if(!(s&&s.demo))openSetup()})();
 requestAnimationFrame(loop);
 </script>
 </body>
