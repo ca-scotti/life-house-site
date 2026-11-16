@@ -27,14 +27,35 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .drawer h3{margin:0 0 10px;font-size:13px;font-weight:400;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .drawer .x{font:inherit;font-size:18px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 6px}
 .grp{margin-bottom:14px}
-.grp button{font:inherit;font-size:16px;color:var(--ink);background:none;border:0;padding:0;margin:0 0 6px;display:flex;align-items:center;gap:8px;cursor:pointer;width:100%;text-align:left}
-.grp button:hover .gn{color:var(--acc)}
+.grp .gh{font:inherit;font-size:16px;color:var(--ink);background:none;border:0;padding:0;margin:0 0 6px;display:flex;align-items:center;gap:8px;cursor:pointer;width:100%;text-align:left}
+.grp .gh:hover .gn{color:var(--acc)}
 .grp .dot{width:8px;height:8px;background:#5a5f80;box-shadow:0 0 0 2px rgba(17,19,29,.7);flex:none}
 .grp .dot.lit{background:var(--acc)}
 .grp .cnt{margin-left:auto;font-size:12px;color:var(--muted)}
 .grp ul{list-style:none;margin:0;padding:0 0 0 16px;display:flex;flex-direction:column;gap:5px}
-.grp li{font-size:14px;line-height:1.3;color:#e2dacd;position:relative}
-.grp li::before{content:'';position:absolute;left:-12px;top:6px;width:5px;height:5px;background:var(--muted)}
+.grp li{font-size:14px;line-height:1.3;color:#e2dacd}
+.grp ul{padding-left:4px}
+.tl{display:flex;gap:8px;align-items:flex-start;background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%;line-height:1.3}
+.tl .bx{flex:none;width:12px;height:12px;margin-top:2px;border:2px solid var(--acc);box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+.tl:hover .bx{background:rgba(255,207,107,.25)}
+.tl.done{color:var(--muted);text-decoration:line-through;cursor:default}
+.tl.done .bx{background:var(--acc)}
+.tl:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.chest-wrap{position:fixed;inset:0;z-index:6;display:none;align-items:center;justify-content:center;background:rgba(10,12,20,.38);padding:16px}
+.chest-wrap.show{display:flex}
+.chest-card{width:300px;max-width:100%;background:rgba(27,29,43,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.18);box-shadow:0 5px 0 rgba(17,19,29,.6);padding:16px;color:var(--ink);text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'Pixelify Sans',system-ui,sans-serif;animation:pop .2s ease-out}
+.chest-card .ct{font-size:18px;font-weight:600}
+.chest-card .cs{font-size:13px;color:var(--muted);margin-top:-6px}
+#chc{width:192px;height:160px;image-rendering:pixelated}
+#chc.shake{animation:shake .5s steps(2) infinite}
+@keyframes shake{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,0) rotate(-2deg)}50%{transform:translate(3px,-2px) rotate(2deg)}75%{transform:translate(-2px,0) rotate(-1deg)}}
+.cres{font-size:15px;min-height:20px;line-height:1.4}
+.rb{display:inline-block;font-size:12px;padding:1px 6px;margin-right:6px;border:2px solid;vertical-align:1px}
+.rb.c{color:#a8e4ff;border-color:#a8e4ff}.rb.r{color:#c59bff;border-color:#c59bff}.rb.e{color:#3a2a10;background:#ffd35c;border-color:#ffd35c}
+.cbtn{font:inherit;font-size:16px;padding:9px 18px;border:2px solid #11131d;background:var(--acc);color:#3a2a10;cursor:pointer;box-shadow:0 4px 0 #a07a2a}
+.cbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #a07a2a}
+.cbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#chc.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}}
 .pane{position:fixed;z-index:2;width:280px;max-width:calc(100vw - 32px);background:rgba(27,29,43,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 0 rgba(17,19,29,.6);padding:12px 14px 14px;color:var(--ink);display:none}
 .pane.show{display:block;animation:pop .18s ease-out}
@@ -46,7 +67,6 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .pane p{margin:4px 0 10px;font-size:13px;color:var(--muted)}
 .pane ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .pane li{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.3}
-.pane li::before{content:'';flex:none;width:8px;height:8px;margin-top:5px;background:var(--acc);box-shadow:0 0 0 2px rgba(17,19,29,.7)}
 .stage canvas{width:100vw;height:100vh;max-width:none;image-rendering:pixelated;display:block}
 h1{font-size:22px;font-weight:600;margin:0;letter-spacing:.5px}
 .sub{color:var(--muted);font-size:14px;margin-top:2px}
@@ -78,6 +98,7 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 <body>
 <div class="stage"><canvas id="c"></canvas></div>
 <button class="menu-btn" id="mb" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
+<div class="chest-wrap" id="cw" role="dialog" aria-modal="true" aria-labelledby="ctitle"><div class="chest-card"><div class="ct" id="ctitle">You found a chest</div><div class="cs" id="csub"></div><canvas id="chc" width="48" height="40"></canvas><div class="cres" id="cres" aria-live="polite"></div><button class="cbtn" id="cbtn">Open it</button></div></div>
 <aside class="drawer" id="drawer" aria-label="Menu">
   <div class="dh"><h2>Menu</h2><button class="x" id="dx" aria-label="Close menu">x</button></div>
   <section><h3>To-dos</h3><div id="todos"></div></section>
@@ -282,6 +303,19 @@ const FR=[
  {n:'Lamp and records',fx:()=>{const l=floorLamp(3,67,38,'#ffcf8a');l.b.push(B(58,1,0,14,9,10,WOODL,(f,u,v)=>f===1?(u%7<.8?WOOD:(v<8&&v>1&&u%7>1.5&&u%7<6?(Math.floor(u)%2?'#3f6fb5':'#c9533f'):null)):null),B(59,2,10,12,7,1.6,INK),B(60.6,2.8,11.6,6,5.4,.4,'#1b1b22',(f,u,v)=>Math.hypot(u-3,v-2.7)<.9?'#e05a4f':null),B(68,3,11.6,1,4,1,'#c4c4d0'));return l}},
  {n:'Rug, plant and books',b:()=>[rug(19,26,34,36,'#e9d8a6','#b5654a','#5b7fc4'),...plant(76,74,0,1.4,12),B(44,66,0,6,8,1.6,'#c9533f'),B(44.5,66.5,1.6,5,7,1.6,'#3f6fb5'),B(44,67,3.2,6,6,1.4,'#e0b44c')]},
 ];
+WORK.push(
+ {n:'Little cactus',b:()=>[B(66,3,0,5,5,5,'#c4683f',(f,u,v)=>f===0?'#4a3326':(v>3.8?'#d98455':null)),B(67.2,4.2,5,2.6,2.6,10,'#5a9b6a',(f,u)=>u%1.3<.45?'#3d7f3e':null),B(65.4,5,9,1.8,1.4,1.4,'#5a9b6a'),B(65.4,5,10.4,1.4,1.4,3,'#5a9b6a'),B(69.8,5,11,1.6,1.4,1.4,'#5a9b6a'),B(70.2,5,12.4,1.4,1.4,2.4,'#5a9b6a'),B(67.8,4.8,15,1.4,1.4,1.2,'#ff8fa3')]},
+ {n:'Cozy beanbag',b:()=>[B(64,60,0,14,12,5,'#e0b44c'),B(65,61,5,12,10,3,'#e9c46a'),B(64,68,5,14,4,7,'#d9a441'),B(66,62,8,4,4,1,'#f3d9b0')]});
+FAM.push(
+ {n:'Toy box',b:()=>[B(60,28,0,10,7,6,'#e05a4f',(f,u,v)=>f===0?'#c94a40':(u%3<1?'#f2857a':null)),B(60,28,6,10,7,1,'#ffd35c'),B(72,31,0,3,3,3,'#3f6fb5',(f,u,v)=>(u+v)%2<.8?'#ffffff':null),B(63,30,7,3,2,3,'#8a5aa8')]},
+ {n:'Fish tank',b:()=>[B(56,1,0,16,8,10,WOODL,(f)=>f===0?null:WOOD),B(57,2,10,14,6,9,'#9fd4f2',(f,u,v)=>{if(f===0)return v<1||v>5?'#e6f4fa':'#7fc0e6';if(v>8.2)return '#e6f4fa';if(v<1.6)return '#e0c48a';const fx=[[3,5,'#ff8a3d'],[9,3,'#ffd35c'],[6,6.4,'#ff6f91']];for(const p of fx)if(Math.abs(u-p[0])<1&&Math.abs(v-p[1])<.6)return '!'+p[2];if(Math.abs(u-11)<.5&&v<6)return '#3d9f5a';return null})],L:[{x:64,y:6,z:15,r:18,c:[.5,.8,1],i:.4}]});
+GYM.push(
+ {n:'Water cooler',b:()=>[B(82,50,0,5,5,10,'#e8e4dc',(f,u,v)=>f===1&&v>6&&v<7&&Math.abs(u-2.5)<.8?'#5ab0e6':null),B(82.6,50.6,10,3.8,3.8,6,'#8fd3ff',(f,u,v)=>v>5.2?'#3f6fb5':(u<1?'#c8ecff':null))]},
+ {n:'Golden trophy',b:()=>[B(70,62,0,6,6,8,'#f2f2ee',(f,u,v)=>f!==0&&v>6.6?'#d9d0c4':null),B(71.6,63.6,8,2.8,2.8,1,'#b8862e'),B(72.4,64.4,9,1.2,1.2,2,'#e0b44c'),B(71,63,11,4,4,4,'#ffd35c',(f,u)=>u<.9?'#fff0b0':null),B(70,64.4,12,1,1.2,2,'#e0b44c'),B(75,64.4,12,1,1.2,2,'#e0b44c')],L:[{x:73,y:65,z:14,r:12,c:[1,.85,.4],i:.35}]});
+FR.push(
+ {n:'Globe',b:()=>[B(62,62,0,4,4,1,WOODD),B(63.4,63.4,1,1.2,1.2,7,WOODD),B(61,61,8,6,6,6,'#3f8fd6',(f,u,v)=>hash(Math.floor(u*1.3)*11+Math.floor(v*1.3)*7+f)<.38?'#5aa850':null)]},
+ {n:'Golden Eiffel',b:()=>[B(77,40,0,7,7,6,'#f2f2ee',(f,u,v)=>f!==0&&v>4.6?'#d9d0c4':null),B(78,41,6,5,5,2.4,'#ffd35c'),B(78.8,41.8,8.4,3.4,3.4,4,'#ffd35c',(f,u)=>u<.8?'#fff0b0':'#e0b44c'),B(79.6,42.6,12.4,1.8,1.8,4,'#ffd35c'),B(80.1,43.1,16.4,.8,.8,3,'#ffd35c')],L:[{x:80.5,y:43.5,z:12,r:12,c:[1,.85,.4],i:.35}]});
+const RAR={Work:['c','c','c','c','r','e','c','r'],Family:['c','c','c','c','c','e','c','r'],Gym:['c','c','c','r','c','c','c','e'],French:['c','c','c','r','r','c','r','e']};
 
 const rooms=[
  {name:'Work',gx:0,gy:0,items:WORK,lv:4,xp:1,w:.95},
@@ -290,7 +324,7 @@ const rooms=[
  {name:'French',gx:1,gy:1,items:FR,lv:2,xp:1,w:.3},
 ];
 rooms.forEach(r=>{r.dw=r.w;r.ox=r.gx*GAP;r.oy=r.gy*GAP;
-  r.items.forEach(it=>{const o=it.fx?it.fx():{b:it.b(),L:it.L||[]};it.boxes=o.b.map(b=>Object.assign(b,{x:b.x+r.ox,y:b.y+r.oy}));it.L=(o.L||[]).map(l=>Object.assign({},l,{x:l.x+r.ox,y:l.y+r.oy}))})});
+  r.items.forEach((it,k)=>{it.rar=RAR[r.name][k]||'c';it.own=k<r.lv;const o=it.fx?it.fx():{b:it.b(),L:it.L||[]};it.boxes=o.b.map(b=>Object.assign(b,{x:b.x+r.ox,y:b.y+r.oy}));it.L=(o.L||[]).map(l=>Object.assign({},l,{x:l.x+r.ox,y:l.y+r.oy}))})});
 
 const SHELL=(()=>{const S=[];
   S.push(B(-1500,-1500,-14,3000,3000,8,'#7cc35a',groundTex(),{out:1}));
@@ -321,7 +355,7 @@ function render(now){
   let id=0;
   for(const b of SHELL){raster(b,b.out?900+(id%40):id,0);id++;if(b.cast)addShadow(b)}
   const Ls=[[],[],[],[]];
-  rooms.forEach((r,ri)=>{for(let k=0;k<r.lv;k++){const it=r.items[k];let dz=0;
+  rooms.forEach((r,ri)=>{for(let k=0;k<r.items.length;k++){const it=r.items[k];if(!it.own)continue;let dz=0;
     if(it.t0){const p=(now-it.t0)/650;if(p<1)dz=34*(1-p)*(1-p);else if(!it.landed){it.landed=1;const b0=it.boxes[0];const[sx,sy]=proj(b0.x+b0.w/2,b0.y+b0.d/2,b0.z+b0.h);burst(sx,sy,22,true)}}
     const gid=100+ri*200+k*20;
     it.boxes.forEach((b,j)=>{raster(b,b.flat?gid:gid+1+(j%3),dz);if(!b.flat&&!b.emit&&b.z<26&&dz===0)addShadow(b)});
@@ -371,28 +405,96 @@ const TODO={
   Gym:['Go for a 30 minute run','Book Thursday spin class','Pack your gym bag tonight'],
   French:['Do a 10 minute Duolingo lesson','Watch one episode in French','Review verb flashcards','Finish homework for Tuesday class'],
 };
+for(const k in TODO)TODO[k]=TODO[k].map(t=>({t,done:false}));
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const left=n=>(TODO[n]||[]).filter(x=>!x.done).length;
+function taskList(ri){return (TODO[rooms[ri].name]||[]).map((x,i)=>`<li><button class="tl${x.done?' done':''}" data-r="${ri}" data-i="${i}" ${x.done?'aria-disabled="true"':''} aria-label="${x.done?'Done: ':'Mark done: '}${esc(x.t)}"><span class="bx"></span><span>${esc(x.t)}</span></button></li>`).join('')}
+function wireTasks(root){root.querySelectorAll('.tl').forEach(b=>b.onclick=()=>{if(!b.classList.contains('done'))finishTask(+b.dataset.r,+b.dataset.i)})}
+let paneRoom=-1;
+function fillPane(ri){
+  const r=rooms[ri],n=left(r.name);
+  const tg=document.getElementById('pt');tg.textContent=r.w>.45?'Lights on':'Lights dim';tg.className='tag'+(r.w>.45?' lit':'');
+  document.getElementById('pd').textContent=n===0?'All done here. Nice work.':(r.w>.45?`${n} left. Each one finished gives you a chest.`:`${n} waiting here. One brings the lights back.`);
+  const pl=document.getElementById('pl');pl.innerHTML=taskList(ri);wireTasks(pl);
+}
+function finishTask(ri,i){
+  const r=rooms[ri],x=TODO[r.name][i];if(x.done)return;x.done=true;r.w=1;
+  const[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,10,false);
+  if(paneRoom===ri&&pane.classList.contains('show'))fillPane(ri);
+  if(drawer.classList.contains('open'))renderTodos();
+  setTimeout(()=>openChest(ri),380);
+}
+const RNAME={c:'Common',r:'Rare',e:'Epic'},RCOL={c:'#a8e4ff',r:'#c59bff',e:'#ffd35c',n:'#9aa0b5'};
+function roll(r){
+  const p=Math.random(),want=p<.3?null:p<.75?'c':p<.93?'r':'e';
+  const locked=r.items.filter(it=>!it.own);
+  if(!want||!locked.length)return{item:null,full:!locked.length};
+  for(const k of[want,'c','r','e']){const pool=locked.filter(it=>it.rar===k);if(pool.length)return{item:pool[Math.floor(Math.random()*pool.length)]}}
+  return{item:null};
+}
+const cw=document.getElementById('cw'),chc=document.getElementById('chc'),cx2=chc.getContext('2d'),cbtn=document.getElementById('cbtn');
+let chest=null;
+function cpx(x,y,c,w,h){cx2.fillStyle=c;cx2.fillRect(x,y,w||1,h||1)}
+function drawChest(open,col,t){
+  cx2.clearRect(0,0,48,40);const O='#3b2418',W='#9a6240',WL='#b97c4e',WD='#6e4029',G='#e0b44c',GD='#a87a24';
+  cpx(10,37,'rgba(0,0,0,.25)',28,2);
+  if(open&&col){cx2.save();cx2.globalAlpha=.55;cx2.fillStyle=col;for(let k=0;k<7;k++){const a=-Math.PI*(.12+.76*k/6)+Math.sin(t/500+k)*.05;cx2.beginPath();cx2.moveTo(24,21);cx2.lineTo(24+Math.cos(a-.09)*30,21+Math.sin(a-.09)*30);cx2.lineTo(24+Math.cos(a+.09)*30,21+Math.sin(a+.09)*30);cx2.fill()}cx2.restore();
+    for(let k=0;k<6;k++){const x=14+((k*37+Math.floor(t/120))%22),y=4+((k*23+Math.floor(t/90))%14);cpx(x,y,k%2?'#ffffff':col)}}
+  cpx(8,20,O,32,17);cpx(9,21,W,30,15);cpx(9,21,WL,30,1);cpx(9,34,WD,30,1);
+  for(const bx of[12,33])cpx(bx,20,GD,3,17),cpx(bx,21,G,2,15);
+  if(!open){
+    cpx(11,9,O,26,1);cpx(9,10,O,30,1);cpx(8,11,O,32,10);
+    cpx(11,10,WL,26,1);cpx(9,11,WL,30,2);cpx(9,13,W,30,7);cpx(9,19,WD,30,1);
+    for(const bx of[12,33])cpx(bx,9,GD,3,12),cpx(bx,10,G,2,10);
+    cpx(21,16,GD,6,8);cpx(22,17,G,4,6);cpx(23,19,'#3b2418',2,2);cpx(23,21,'#3b2418',1,2);
+  }else{
+    cpx(8,4,O,32,9);cpx(9,5,WD,30,7);cpx(9,5,W,30,1);for(const bx of[12,33])cpx(bx,4,GD,3,9),cpx(bx,5,G,2,7);
+    cpx(9,21,'#2a1a12',30,3);
+    if(col){cpx(16,19,col,16,3);cpx(18,17,'#ffffff',3,2);cpx(26,18,col,3,2)}
+  }
+}
+let anim=0;
+function animChest(t){if(!cw.classList.contains('show')){anim=0;return}drawChest(chest&&chest.opened,chest&&chest.opened?(chest.item?RCOL[chest.item.rar]:null):null,t);anim=requestAnimationFrame(animChest)}
+function openChest(ri){
+  const r=rooms[ri];chest={ri,...roll(r),opened:false};
+  document.getElementById('ctitle').textContent='You found a chest';
+  document.getElementById('csub').textContent=`From your ${r.name} room`;
+  document.getElementById('cres').innerHTML='';cbtn.textContent='Open it';
+  chc.classList.add('shake');cw.classList.add('show');cbtn.focus();
+  if(!anim)anim=requestAnimationFrame(animChest);
+}
+cbtn.onclick=()=>{
+  if(!chest)return;
+  if(!chest.opened){chest.opened=true;chc.classList.remove('shake');
+    const res=document.getElementById('cres');
+    if(chest.item){res.innerHTML=`<span class="rb ${chest.item.rar}">${RNAME[chest.item.rar]}</span>${esc(chest.item.n)}`;cbtn.textContent=`Add to ${rooms[chest.ri].name}`}
+    else{res.textContent=chest.full?'Empty. This room already has everything. The lights still came on.':'Empty this time. The lights still came on.';cbtn.textContent='Okay'}
+    return}
+  const c=chest;chest=null;cw.classList.remove('show');
+  if(c.item){c.item.own=true;c.item.t0=performance.now();c.item.landed=0}
+};
 const pane=document.getElementById('pane');
 function hitRoom(e){const b=cv.getBoundingClientRect(),x=Math.floor((e.clientX-b.left)/b.width*CW),y=Math.floor((e.clientY-b.top)/b.height*CH);if(x<0||y<0||x>=CW||y>=CH)return -1;const i=y*CW+x;return oid[i]>=0?rid[i]:-1}
 function openPane(ri,cx,cy){
-  const r=rooms[ri],t=TODO[r.name]||[];sel=ri;
+  const r=rooms[ri];sel=ri;paneRoom=ri;
   document.getElementById('pn').textContent=r.name;
-  const tg=document.getElementById('pt');tg.textContent=r.w>.45?'Lights on':'Lights dim';tg.className='tag'+(r.w>.45?' lit':'');
-  document.getElementById('pd').textContent=r.w>.45?`${t.length} things to do here`:`${t.length} things waiting here. One brings the lights back.`;
-  document.getElementById('pl').innerHTML=t.map(s=>`<li>${s}</li>`).join('');
+  fillPane(ri);
   pane.classList.remove('show');void pane.offsetWidth;pane.classList.add('show');
   const w=pane.offsetWidth,h=pane.offsetHeight;
   let left=cx+18,top=cy-h/2;if(left+w>innerWidth-16)left=cx-w-18;
   left=Math.max(16,Math.min(left,innerWidth-w-16));top=Math.max(16,Math.min(top,innerHeight-h-16));
   pane.style.left=left+'px';pane.style.top=top+'px';
 }
-function closePane(){pane.classList.remove('show');sel=-1}
+function closePane(){pane.classList.remove('show');sel=-1;paneRoom=-1}
 cv.addEventListener('click',e=>{const ri=hitRoom(e);if(ri>=0)openPane(ri,e.clientX,e.clientY);else closePane()});
 cv.addEventListener('mousemove',e=>{cv.style.cursor=hitRoom(e)>=0?'pointer':'default'});
 document.getElementById('px').onclick=closePane;
 const drawer=document.getElementById('drawer'),mb=document.getElementById('mb');
 function renderTodos(){
-  document.getElementById('todos').innerHTML=rooms.map((r,i)=>{const t=TODO[r.name]||[];return `<div class="grp"><button data-i="${i}"><span class="dot${r.w>.45?' lit':''}"></span><span class="gn">${r.name}</span><span class="cnt">${t.length}</span></button><ul>${t.map(s=>`<li>${s}</li>`).join('')}</ul></div>`}).join('');
-  document.querySelectorAll('.grp button').forEach(b=>b.onclick=()=>{closePane();sel=+b.dataset.i});
+  const el=document.getElementById('todos');
+  el.innerHTML=rooms.map((r,i)=>`<div class="grp"><button class="gh" data-i="${i}"><span class="dot${r.w>.45?' lit':''}"></span><span class="gn">${r.name}</span><span class="cnt">${left(r.name)} left</span></button><ul>${taskList(i)}</ul></div>`).join('');
+  el.querySelectorAll('.gh').forEach(b=>b.onclick=()=>{closePane();sel=+b.dataset.i});
+  wireTasks(el);
 }
 function openDrawer(){renderTodos();drawer.classList.add('open');mb.setAttribute('aria-expanded','true');document.getElementById('dx').focus()}
 function closeDrawer(){drawer.classList.remove('open');mb.setAttribute('aria-expanded','false')}
