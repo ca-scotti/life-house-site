@@ -70,6 +70,11 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#3a2a10}
 .chip:disabled{opacity:.4;cursor:not-allowed}
 .chip:focus-visible,.obc button:focus-visible,.obc textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.steps{display:flex;gap:6px;margin-bottom:-4px}
+.steps i{width:22px;height:6px;background:rgba(255,255,255,.18)}
+.steps i.on{background:var(--acc)}
+.chips.big{flex-direction:column}
+.chips.big .chip{font-size:16px;padding:10px 12px;text-align:left}
 .oberr{color:#ff9f8f;font-size:13px;min-height:16px;margin-top:-6px}
 .obrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .oblink{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;text-decoration:underline}
@@ -137,23 +142,37 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
   <section><h3>Your house</h3><button class="redo" id="redo">Redo setup</button></section>
 </aside>
 <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obt">
-  <div class="obc" id="ob1">
+  <div class="obc step" id="s1">
+    <div class="steps" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
     <h2 id="obt">Let's build your house</h2>
-    <p class="lead">A few quick questions. Each part of your life becomes a room.</p>
-    <div class="q"><div class="ql"><span>Which parts of your life do you want to look after?</span><span class="qh" id="cnt">Pick up to 4</span></div><div class="chips" id="qa"></div></div>
-    <div class="q"><div class="ql"><span>What gets in your way the most?</span></div><div class="chips" id="qb"></div></div>
-    <div class="q"><div class="ql"><span>How often should the house check in on you?</span></div><div class="chips" id="qc"></div></div>
+    <p class="lead">Each part of your life becomes a room. Which ones do you want to look after?</p>
+    <div class="q"><div class="ql"><span class="qh" id="cnt">Pick up to 4</span></div><div class="chips" id="qa"></div></div>
     <div class="oberr" id="oberr" role="alert"></div>
-    <div class="obrow"><button class="oblink" id="obskip">Skip, show me the demo house</button><button class="cbtn" id="obnext">Next</button></div>
+    <div class="obrow"><button class="oblink" id="obskip">Skip, show me the demo house</button><button class="cbtn" data-go="2">Next</button></div>
   </div>
-  <div class="obc" id="ob2" style="display:none">
+  <div class="obc step" id="s2" style="display:none">
+    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+    <h2>What gets in your way the most?</h2>
+    <p class="lead">So the house knows how to help.</p>
+    <div class="chips big" id="qb"></div>
+    <div class="obrow"><button class="oblink" data-go="1">Back</button><button class="oblink" data-go="3">Skip</button></div>
+  </div>
+  <div class="obc step" id="s3" style="display:none">
+    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    <h2>How often should the house check in?</h2>
+    <p class="lead">You can change this later.</p>
+    <div class="chips big" id="qc"></div>
+    <div class="obrow"><button class="oblink" data-go="2">Back</button><button class="oblink" data-go="4">Skip</button></div>
+  </div>
+  <div class="obc step" id="s4" style="display:none">
+    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
     <h2>Tell me about your life</h2>
     <p class="lead">Write like you'd text a friend. Anything you need to do becomes a to-do in the right room.</p>
     <div class="chat" id="chat" aria-live="polite"></div>
     <div class="compose"><textarea id="ta" placeholder="I need to call my sister and I keep skipping the gym..." aria-label="Message"></textarea><button class="sbtn" id="send">Send</button></div>
     <div class="note">This helper runs in your browser and looks for things like "I need to...". It isn't a full AI yet.</div>
     <div class="preview" id="pv"></div>
-    <div class="obrow"><button class="oblink" id="obback">Back</button><button class="cbtn" id="obgo">Move in</button></div>
+    <div class="obrow"><button class="oblink" data-go="3">Back</button><button class="cbtn" id="obgo">Build my house</button></div>
   </div>
 </div>
 <div class="pane" id="pane"><button class="x" id="px" aria-label="Close">x</button><h2><span id="pn"></span><span class="tag" id="pt"></span></h2><p id="pd"></p><ul id="pl"></ul></div>
@@ -408,7 +427,7 @@ function render(now){
   let id=0;
   for(const b of SHELL){raster(b,b.out?900+(id%40):id,0);id++;if(b.cast)addShadow(b)}
   const Ls=[[],[],[],[]];
-  rooms.forEach((r,ri)=>{for(let k=0;k<r.items.length;k++){const it=r.items[k];if(!it.own)continue;let dz=0;
+  rooms.forEach((r,ri)=>{for(let k=0;k<r.items.length;k++){const it=r.items[k];if(!it.own||(it.t0&&now<it.t0))continue;let dz=0;
     if(it.t0){const p=(now-it.t0)/650;if(p<1)dz=34*(1-p)*(1-p);else if(!it.landed){it.landed=1;const b0=it.boxes[0];const[sx,sy]=proj(b0.x+b0.w/2,b0.y+b0.d/2,b0.z+b0.h);burst(sx,sy,22,true)}}
     const gid=100+ri*200+k*20;
     it.boxes.forEach((b,j)=>{raster(b,b.flat?gid:gid+1+(j%3),dz);if(!b.flat&&!b.emit&&b.z<26&&dz===0)addShadow(b)});
@@ -569,7 +588,7 @@ const AREAS=[
 const BLOCK=['Getting started','Remembering things','Boring tasks','Too much at once'];
 const FREQ=['Every day','A few times a week','Only when I open it'];
 const BASE=rooms.map(r=>({name:r.name,own:r.items.map(it=>it.own),w:r.w}));
-const ob=document.getElementById('ob'),ob1=document.getElementById('ob1'),ob2=document.getElementById('ob2');
+const ob=document.getElementById('ob');
 let pick=[],block=null,freq=null,draft={},chatLog=[];
 const A=id=>AREAS.find(a=>a.id===id);
 function chipsHTML(list,attr){return list.map(x=>`<button class="chip" ${attr}="${esc(x.id||x)}" aria-pressed="false">${esc(x.label||x)}</button>`).join('')}
@@ -583,18 +602,22 @@ function syncChips(){
   document.getElementById('cnt').textContent=pick.length?`${pick.length} of 4 picked`:'Pick up to 4';
 }
 document.getElementById('qa').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.a;pick=pick.includes(id)?pick.filter(x=>x!==id):pick.concat(id).slice(0,4);document.getElementById('oberr').textContent='';syncChips()};
-document.getElementById('qb').onclick=e=>{const b=e.target.closest('[data-b]');if(b){block=b.dataset.b;syncChips()}};
-document.getElementById('qc').onclick=e=>{const b=e.target.closest('[data-c]');if(b){freq=b.dataset.c;syncChips()}};
+document.getElementById('qb').onclick=e=>{const b=e.target.closest('[data-b]');if(b){block=b.dataset.b;syncChips();setTimeout(()=>go(3),260)}};
+document.getElementById('qc').onclick=e=>{const b=e.target.closest('[data-c]');if(b){freq=b.dataset.c;syncChips();setTimeout(()=>go(4),260)}};
+function go(n){
+  if(n>1&&!pick.length){n=1;document.getElementById('oberr').textContent='Pick at least one part of your life to continue.'}
+  [1,2,3,4].forEach(i=>document.getElementById('s'+i).style.display=i===n?'flex':'none');
+  if(n===4)enterChat();
+  const f=document.querySelector('#s'+n+' .chip,#s'+n+' textarea');if(f&&n!==1)f.focus();
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
 const TIP={'Getting started':'Since starting is the hard part, I\'ll keep every to-do tiny.','Remembering things':'Tell me everything floating in your head, and I\'ll put it in a room so you don\'t have to remember it.','Boring tasks':'Boring ones are where the chests help. Every finished task gets one.','Too much at once':'We\'ll keep each room short. You only need one thing at a time.'};
 function say(text,who,add){chatLog.push({text,who,add});const c=document.getElementById('chat');const d=document.createElement('div');d.className='msg '+who;d.textContent=text;if(add){const s=document.createElement('span');s.className='add';s.textContent=add;d.appendChild(s)}c.appendChild(d);c.scrollTop=c.scrollHeight}
 function preview(){document.getElementById('pv').innerHTML=pick.map(id=>`<span><b>${esc(A(id).label)}</b> ${(draft[id]||[]).length+3} to-dos</span>`).join('')}
-document.getElementById('obnext').onclick=()=>{
-  if(!pick.length){document.getElementById('oberr').textContent='Pick at least one part of your life to continue.';return}
-  ob1.style.display='none';ob2.style.display='flex';
+function enterChat(){
   if(!chatLog.length){const names=pick.map(id=>A(id).label);say(`Nice. Your house will have ${names.length===1?'one room':names.length+' rooms'}: ${names.join(', ')}.${block?' '+TIP[block]:''}\n\nWhat's on your mind? What have you been putting off?`,'bot')}
-  preview();document.getElementById('ta').focus();
-};
-document.getElementById('obback').onclick=()=>{ob2.style.display='none';ob1.style.display='flex'};
+  preview();
+}
 function areaFor(text){const t=' '+text.toLowerCase()+' ';let best=null,score=0;for(const id of pick){const s=A(id).kw.filter(k=>new RegExp('\\b'+k+'\\b').test(t)).length;if(s>score){score=s;best=id}}return best}
 function extract(text){
   const out=[],re=/\b(?:i\s+(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to|i'?d\s+like\s+to|remind\s+me\s+to|don'?t\s+forget\s+to|i\s+keep\s+(?:forgetting|putting\s+off)(?:\s+to)?|todo:?)\s+([^.!?\n;]+)/gi;let m;
@@ -628,9 +651,12 @@ function applySetup(cfg){
 }
 function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);rooms.forEach((r,ri)=>{const b=BASE[ri];r.name=b.name;r.spare=false;r.w=b.w;r.items.forEach((it,k)=>it.own=b.own[k])})}
 const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
-function openSetup(){pick=[];block=null;freq=null;draft={};chatLog=[];document.getElementById('chat').innerHTML='';syncChips();ob2.style.display='none';ob1.style.display='flex';ob.classList.add('show');closeDrawer();closePane()}
-document.getElementById('obgo').onclick=()=>{const cfg={pick,block,freq,draft};applySetup(cfg);store(cfg);ob.classList.remove('show');if(drawer.classList.contains('open'))renderTodos()};
-document.getElementById('obskip').onclick=()=>{resetDemo();store({demo:true});ob.classList.remove('show')};
+function openSetup(){pick=[];block=null;freq=null;draft={};chatLog=[];document.getElementById('chat').innerHTML='';document.getElementById('oberr').textContent='';syncChips();
+  rooms.forEach(r=>{r.items.forEach(it=>{it.own=false;it.t0=0});r.w=.3;r.spare=true});
+  go(1);ob.classList.add('show');closeDrawer();closePane()}
+function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=170}}))}
+document.getElementById('obgo').onclick=()=>{const cfg={pick,block,freq,draft};applySetup(cfg);store(cfg);ob.classList.remove('show');bringIn()};
+document.getElementById('obskip').onclick=()=>{resetDemo();store({demo:true});ob.classList.remove('show');bringIn()};
 document.getElementById('redo').onclick=openSetup;
 (()=>{let s=null;try{s=JSON.parse(localStorage.getItem('lh-setup')||'null')}catch(_){}
   if(s&&s.pick&&s.pick.length)applySetup(s);else if(!(s&&s.demo))openSetup()})();
