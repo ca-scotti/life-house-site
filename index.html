@@ -470,7 +470,6 @@ function render(now){
   parts=parts.filter(p=>p.l>0);
   for(const p of parts){p.l--;p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.98;const x=Math.round(p.x),y=Math.round(p.y);const c=rgb(p.c);const put=(xx,yy)=>{if(xx<0||yy<0||xx>=CW||yy>=CH)return;const o=(yy*CW+xx)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2]};put(x,y);if(p.l>20){put(x+1,y);put(x-1,y);put(x,y+1);put(x,y-1)}}
   ctx.putImageData(IMG,0,0);
-  drawCapy();
 }
 const CAPY_BODY='M58 96 C70 62 120 52 158 60 C214 70 252 110 252 160 C252 190 236 204 210 204 L128 204 C104 204 94 186 96 166 C80 160 60 150 54 134 C48 120 48 106 58 96 Z';
 const CAPY_MUZ='M58 96 C48 106 48 120 54 134 C62 146 74 152 88 152 C100 140 102 118 96 104 C90 94 76 89 64 91 Z';
@@ -689,8 +688,7 @@ function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.item
 document.getElementById('obgo').onclick=()=>{const cfg={pick,block,freq,draft};applySetup(cfg);store(cfg);ob.classList.remove('show');bringIn()};
 document.getElementById('obskip').onclick=()=>{resetDemo();store({demo:true});ob.classList.remove('show');bringIn()};
 document.getElementById('redo').onclick=openSetup;
-(()=>{let s=null;try{s=JSON.parse(localStorage.getItem('lh-setup')||'null')}catch(_){}
-  if(s&&s.pick&&s.pick.length)applySetup(s);else if(!(s&&s.demo))openSetup()})();
+openSetup();
 requestAnimationFrame(loop);
 </script>
 </body>
