@@ -56,29 +56,35 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .cbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #a07a2a}
 .cbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){#chc.shake{animation:none}}
-.ob{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:rgba(10,12,20,.3);padding:16px;font-family:'Pixelify Sans',system-ui,sans-serif}
-.ob.show{display:flex}
-.obc{width:440px;max-width:100%;max-height:100%;overflow-y:auto;box-sizing:border-box;background:rgba(27,29,43,.74);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.18);box-shadow:0 5px 0 rgba(17,19,29,.6);padding:18px;color:var(--ink);display:flex;flex-direction:column;gap:14px;animation:pop .2s ease-out}
-.obc h2{margin:0;font-size:22px;font-weight:600}
-.obc .lead{margin:-8px 0 0;color:var(--muted);font-size:14px}
-.q{display:flex;flex-direction:column;gap:8px}
-.q .ql{font-size:15px;display:flex;justify-content:space-between;gap:8px}
-.q .qh{color:var(--muted);font-size:12px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font:inherit;font-size:14px;color:var(--ink);background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.18);padding:4px 10px;cursor:pointer}
-.chip:hover{border-color:rgba(255,207,107,.7)}
-.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#3a2a10}
-.chip:disabled{opacity:.4;cursor:not-allowed}
-.chip:focus-visible,.obc button:focus-visible,.obc textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.steps{display:flex;gap:6px;margin-bottom:-4px}
-.steps i{width:22px;height:6px;background:rgba(255,255,255,.18)}
+.ob{position:fixed;inset:0;z-index:8;display:none;background:#1b1d2b;font-family:'Pixelify Sans',system-ui,sans-serif}
+.ob.show{display:block}
+.obc{position:absolute;inset:0;overflow-y:auto;box-sizing:border-box;background:#1b1d2b;color:var(--ink);display:flex;flex-direction:column;gap:clamp(14px,2.4vh,24px);padding:clamp(20px,5vh,56px) max(16px,env(safe-area-inset-right,0px)) clamp(20px,4vh,40px) max(16px,env(safe-area-inset-left,0px));padding-left:max(clamp(16px,5vw,64px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,5vw,64px),env(safe-area-inset-right,0px));animation:pop .2s ease-out}
+.obc h2{margin:0;font-size:clamp(26px,4.2vw,44px);font-weight:600;line-height:1.1;text-wrap:balance}
+.obc .lead{margin:-6px 0 0;color:var(--muted);font-size:clamp(15px,1.8vw,19px)}
+.q{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+.q .ql{display:flex;justify-content:space-between;gap:8px}
+.q .qh{color:var(--muted);font-size:15px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));grid-auto-rows:minmax(64px,1fr);gap:clamp(8px,1.4vw,14px);flex:1}
+.chip{font:inherit;font-size:clamp(17px,2vw,22px);color:var(--ink);background:#262a3d;border:3px solid #3a3e58;padding:12px 16px;cursor:pointer;box-shadow:0 5px 0 #11131d;text-align:center;display:flex;align-items:center;justify-content:center}
+.chip:hover{border-color:var(--acc)}
+.chip:active{transform:translateY(3px);box-shadow:0 2px 0 #11131d}
+.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#3a2a10;box-shadow:0 5px 0 #a07a2a}
+.chip:disabled{opacity:.35;cursor:not-allowed}
+.chip:focus-visible,.obc button:focus-visible,.obc textarea:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.obhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.obhead>div:first-child{display:flex;flex-direction:column;gap:12px;min-width:0}
+.obcapy{flex:none;width:clamp(96px,14vw,170px)}
+.obcapy svg{width:100%;height:auto;display:block}
+.steps{display:flex;gap:8px}
+.steps i{width:clamp(28px,5vw,48px);height:8px;background:#3a3e58}
 .steps i.on{background:var(--acc)}
-.chips.big{flex-direction:column}
-.chips.big .chip{font-size:16px;padding:10px 12px;text-align:left}
-.oberr{color:#ff9f8f;font-size:13px;min-height:16px;margin-top:-6px}
-.obrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.oblink{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;text-decoration:underline}
-.chat{display:flex;flex-direction:column;gap:8px;height:220px;overflow-y:auto;padding:10px;background:rgba(10,12,20,.35);border:2px solid rgba(255,255,255,.1)}
+.chips.big{grid-template-columns:1fr;grid-auto-rows:minmax(72px,1fr)}
+.chips.big .chip{font-size:clamp(19px,2.4vw,26px);justify-content:flex-start;text-align:left;padding:14px 22px}
+.oberr{color:#ff9f8f;font-size:15px;min-height:18px;margin-top:-6px}
+.obrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.obrow .cbtn{font-size:clamp(18px,2vw,22px);padding:14px 32px}
+.oblink{font:inherit;font-size:16px;background:none;border:0;color:var(--muted);cursor:pointer;padding:6px 0;text-decoration:underline}
+.chat{display:flex;flex-direction:column;gap:8px;flex:1;min-height:180px;overflow-y:auto;padding:12px;background:#14161f;border:3px solid #3a3e58}
 .msg{max-width:85%;padding:7px 10px;font-size:14px;line-height:1.35;white-space:pre-wrap;word-wrap:break-word}
 .msg.bot{align-self:flex-start;background:rgba(255,255,255,.1)}
 .msg.me{align-self:flex-end;background:rgba(255,207,107,.9);color:#3a2a10}
@@ -126,9 +132,6 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 .btn.alt{background:#3a3e58;color:var(--ink);box-shadow:0 4px 0 #11131d}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a07a2a}
 .btn.alt:active{box-shadow:0 1px 0 #11131d}
-.items{display:flex;flex-wrap:wrap;gap:6px;font-size:13px}
-.chip{padding:3px 8px;border:2px solid var(--line);color:var(--muted)}
-.chip.got{color:var(--ink);border-color:#5d6288;background:#2e3049}
 @media (max-width:520px){.btn{flex:1}}
 </style>
 </head>
@@ -144,8 +147,8 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obt">
   <div class="obc step" id="s1">
     <div class="steps" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-    <h2 id="obt">Let's build your house</h2>
-    <p class="lead">Each part of your life becomes a room. Which ones do you want to look after?</p>
+    <div class="obhead"><div><h2 id="obt">Let's build your house</h2>
+    <p class="lead">Each part of your life becomes a room. Which ones do you want to look after?</p></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
     <div class="q"><div class="ql"><span class="qh" id="cnt">Pick up to 4</span></div><div class="chips" id="qa"></div></div>
     <div class="oberr" id="oberr" role="alert"></div>
     <div class="obrow"><button class="oblink" id="obskip">Skip, show me the demo house</button><button class="cbtn" data-go="2">Next</button></div>
@@ -467,6 +470,33 @@ function render(now){
   parts=parts.filter(p=>p.l>0);
   for(const p of parts){p.l--;p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.98;const x=Math.round(p.x),y=Math.round(p.y);const c=rgb(p.c);const put=(xx,yy)=>{if(xx<0||yy<0||xx>=CW||yy>=CH)return;const o=(yy*CW+xx)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2]};put(x,y);if(p.l>20){put(x+1,y);put(x-1,y);put(x,y+1);put(x,y-1)}}
   ctx.putImageData(IMG,0,0);
+  drawCapy();
+}
+const CAPY_BODY='M58 96 C70 62 120 52 158 60 C214 70 252 110 252 160 C252 190 236 204 210 204 L128 204 C104 204 94 186 96 166 C80 160 60 150 54 134 C48 120 48 106 58 96 Z';
+const CAPY_MUZ='M58 96 C48 106 48 120 54 134 C62 146 74 152 88 152 C100 140 102 118 96 104 C90 94 76 89 64 91 Z';
+function capySVG(o){
+  const OL='#3b2417',BD='#c08552',MZ='#7d4a2c',PW='#8f5634',FL='#a86c40',FPW='#7a4628',p=o.id||'c';
+  const sk=w=>`stroke="${OL}" stroke-width="${w||5}" stroke-linejoin="round" stroke-linecap="round"`;
+  const leg=(x,y,w,h,r,col,paw)=>`<clipPath id="${p}l${x}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/></clipPath><g clip-path="url(#${p}l${x})"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${col}"/><rect x="${x}" y="${y+h-13}" width="${w}" height="13" fill="${paw}"/></g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" ${sk()}/>`;
+  const eye=o.open?`<circle cx="126" cy="102" r="7" fill="${OL}"/><circle cx="128.5" cy="99.5" r="2.4" fill="#fff"/>`:`<path d="M115 106 Q126 95 137 106" fill="none" ${sk()}/>`;
+  const orange=o.orange?`<path d="M124 37 Q138 24 152 31 Q142 44 124 37 Z" fill="#7cc35e" ${sk(3.5)}/><circle cx="118" cy="52" r="16" fill="#f5a03d" ${sk(4)}/><path d="M110 46 Q113 42 118 41" fill="none" stroke="#ffd08a" stroke-width="3.5" stroke-linecap="round"/>`:'';
+  const size=o.w?`width="${o.w}" height="${Math.round(o.w*230/270)}"`:'';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 10 270 230" ${size}><defs><clipPath id="${p}b"><path d="${CAPY_BODY}"/></clipPath></defs>
+   ${o.shadow?'<ellipse cx="170" cy="226" rx="104" ry="8" fill="rgba(0,0,0,.18)"/>':''}
+   ${leg(132,178,26,44,12,FL,FPW)}${leg(182,178,28,44,13,FL,FPW)}${leg(104,180,30,44,13,BD,PW)}${leg(208,178,34,46,15,BD,PW)}
+   <ellipse cx="144" cy="60" rx="12" ry="11" fill="${FL}" ${sk()}/><ellipse cx="144" cy="61" rx="5.5" ry="5" fill="${MZ}"/>
+   <ellipse cx="168" cy="66" rx="15" ry="13" fill="${BD}" ${sk()}/><ellipse cx="168" cy="67" rx="7" ry="6" fill="${MZ}"/>
+   <path d="${CAPY_BODY}" fill="${BD}"/><g clip-path="url(#${p}b)"><path d="${CAPY_MUZ}" fill="${MZ}"/></g><path d="${CAPY_BODY}" fill="none" ${sk()}/>
+   <ellipse cx="62" cy="112" rx="3.4" ry="4.2" fill="#3b2012"/><path d="M66 138 Q75 144 84 136" fill="none" ${sk(4)}/>
+   ${eye}<ellipse cx="142" cy="124" rx="13" ry="8" fill="#f08a7a" opacity=".55"/>${orange}</svg>`;
+}
+const capyImg=new Image();capyImg.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(capySVG({orange:true,shadow:true,w:216,id:'h'}));
+let capyRoom=-1;
+function drawCapy(){
+  if(!capyImg.complete||!capyImg.naturalWidth)return;
+  let ri=capyRoom;if(ri<0||rooms[ri].spare)ri=rooms.findIndex(r=>!r.spare);if(ri<0)return;
+  const r=rooms[ri],[sx,sy]=proj(r.ox+62,r.oy+72,0),w=30,h=Math.round(w*230/270);
+  ctx.imageSmoothingEnabled=true;ctx.drawImage(capyImg,Math.round(sx-w/2),Math.round(sy-h+3),w,h);ctx.imageSmoothingEnabled=false;
 }
 
 let last=0;
@@ -490,7 +520,7 @@ function fillPane(ri){
   const pl=document.getElementById('pl');pl.innerHTML=taskList(ri);wireTasks(pl);
 }
 function finishTask(ri,i){
-  const r=rooms[ri],x=TODO[r.name][i];if(x.done)return;x.done=true;r.w=1;
+  const r=rooms[ri],x=TODO[r.name][i];if(x.done)return;x.done=true;r.w=1;capyRoom=ri;
   const[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,10,false);
   if(paneRoom===ri&&pane.classList.contains('show'))fillPane(ri);
   if(drawer.classList.contains('open'))renderTodos();
@@ -585,6 +615,7 @@ const AREAS=[
  {id:'language',label:'Language',slot:3,kw:['french','spanish','german','italian','portuguese','japanese','language','duolingo','vocab','vocabulary','english'],start:['Do a 10 minute lesson','Watch something in that language','Review 20 flashcards']},
  {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','book'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
 ];
+document.getElementById('obcapy').innerHTML=capySVG({open:true,orange:true,id:'ob'});
 const BLOCK=['Getting started','Remembering things','Boring tasks','Too much at once'];
 const FREQ=['Every day','A few times a week','Only when I open it'];
 const BASE=rooms.map(r=>({name:r.name,own:r.items.map(it=>it.own),w:r.w}));
