@@ -780,7 +780,7 @@ const MIC_ERR={
 micBtn.onclick=()=>{
   if(micOn){stopMic();return}
   oberr.textContent='';heard=false;
-  rec=new SR();rec.lang=navigator.language||'en-US';rec.continuous=true;rec.interimResults=true;
+  rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=true;
   micBase=ivta.value?ivta.value.replace(/\s*$/,' '):'';
   rec.onstart=()=>{ivstat.textContent='Listening... speak now'};
   rec.onresult=e=>{heard=true;ivstat.textContent='Listening...';let fin='',mid='';for(let i=0;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else mid+=t}ivta.value=micBase+fin+mid};
