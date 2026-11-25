@@ -74,6 +74,10 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .ivtop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .ivn{font-size:15px;color:var(--acc);letter-spacing:.5px}
 .ivbox{position:relative;flex:1;min-height:180px;display:flex}
+.ivload{position:absolute;inset:0;z-index:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#14161f;border:3px solid #3a3e58}
+.ivload.show{display:flex}
+.ivload canvas{width:min(288px,70%);height:auto;image-rendering:pixelated}
+.ivlmsg{font-size:clamp(17px,2vw,21px);color:var(--ink);text-align:center;padding:0 16px}
 .ivbox textarea{flex:1;min-width:0;font:inherit;font-size:clamp(18px,2vw,22px);line-height:1.45;resize:none;padding:18px 20px 64px;box-sizing:border-box;background:#14161f;color:var(--ink);border:3px solid #3a3e58}
 .ivbox textarea:focus{border-color:var(--acc);outline:none}
 .ivbox textarea:disabled{opacity:.6}
@@ -209,6 +213,7 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
     <div class="obhead"><div><p class="ivack" id="ivack" aria-live="polite"></p><h2 id="obt"></h2>
     <p class="lead" id="ivhint"></p><div class="sofar" id="sofar"></div></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
     <div class="ivbox"><textarea id="ivta" aria-labelledby="obt" placeholder="I'm..."></textarea>
+      <div class="ivload" id="ivload" role="status"><canvas id="ivlc" width="96" height="40" aria-hidden="true"></canvas><div class="ivlmsg" id="ivlmsg">Thinking...</div></div>
       <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Talk instead of typing"><span class="micdot"></span><span id="miclbl">Talk</span></button></div>
     <div class="oberr" id="oberr" role="alert" aria-live="polite"></div>
     <div class="obrow"><span class="ivleft"><button class="oblink" id="ivskip" type="button">Skip this one</button><span class="ivstat" id="ivstat"></span></span><button class="cbtn" id="ivnext">Next</button></div>
@@ -776,6 +781,32 @@ function pixelCapy(){
   return cv;
 }
 document.getElementById('obcapy').appendChild(pixelCapy());
+const LOAD_SPR=pixelCapy(),ldEl=document.getElementById('ivload'),ldCv=document.getElementById('ivlc'),ldG=ldCv.getContext('2d'),ldMsg=document.getElementById('ivlmsg');
+const LOAD_MSGS=['Listening closely...','Finding the rooms in your life...','Turning big things into small steps...','Checking what is due soon...','Laying a few bricks...','Sketching your house plans...'];
+const LOAD_STILL=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let ldRaf=0,ldLast=0,ldFrame=0,ldMsgI=0,ldMsgT=0;
+function drawLoader(f){
+  const g=ldG;g.clearRect(0,0,96,40);
+  g.fillStyle='#3a3e58';g.fillRect(0,37,96,1);
+  const cyc=f%64,bob=LOAD_STILL?0:Math.floor(f/3)%2;
+  g.fillStyle='rgba(0,0,0,.25)';g.fillRect(9,37,24,1);
+  g.save();g.translate(40,0);g.scale(-1,1);g.drawImage(LOAD_SPR,0,9-bob);g.restore();
+  const x0=54,bricks=LOAD_STILL?24:Math.min(24,Math.floor(cyc/1.5));
+  for(let k=0;k<bricks;k++){const r=Math.floor(k/6),c=k%6,y=34-r*3,x=x0+c*6+(r%2?3:0);if(r%2&&c===5)continue;
+    g.fillStyle='#6b2a24';g.fillRect(x,y,6,3);g.fillStyle='#c9584b';g.fillRect(x,y,5,2);g.fillStyle='#dc6f5f';g.fillRect(x,y,5,1)}
+  if(bricks>=24){
+    for(let j=0;j<8;j++){const a=x0-2+j*2.5,b=x0+36-j*2.5;if(b<=a)break;g.fillStyle=j===0?'#5a2424':'#8a3a2a';g.fillRect(Math.round(a),24-j,Math.round(b-a),1)}
+    g.fillStyle='#5e3b26';g.fillRect(x0+14,30,6,7);g.fillStyle='#ffd35c';g.fillRect(x0+18,33,1,1);
+    if(!LOAD_STILL&&cyc>46&&cyc%4<2){g.fillStyle='#ffffff';g.fillRect(x0+40,18,1,1);g.fillRect(x0+41,17,1,1);g.fillRect(x0-6,20,1,1)}
+  }
+}
+function loaderTick(t){if(!ldEl.classList.contains('show')){ldRaf=0;return}
+  if(t-ldLast>90){ldLast=t;ldFrame++;drawLoader(ldFrame)}
+  if(t-ldMsgT>2400){ldMsgT=t;ldMsgI=(ldMsgI+1)%LOAD_MSGS.length;ldMsg.textContent=LOAD_MSGS[ldMsgI]}
+  ldRaf=requestAnimationFrame(loaderTick)}
+function startLoader(){ldFrame=0;ldMsgI=Math.min(asked,LOAD_MSGS.length-1)%LOAD_MSGS.length;if(asked<=1)ldMsgI=0;ldMsg.textContent=LOAD_MSGS[ldMsgI];
+  ldMsgT=performance.now();drawLoader(0);ldEl.classList.add('show');if(!ldRaf&&!LOAD_STILL)ldRaf=requestAnimationFrame(loaderTick)}
+function stopLoader(){ldEl.classList.remove('show')}
 const A=id=>AREAS.find(a=>a.id===id);
 function extract(text){
   const out=[],re=/\b(?:i\s+(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to|i'?d\s+like\s+to|remind\s+me\s+to|don'?t\s+forget\s+to|i\s+keep\s+(?:forgetting|putting\s+off)(?:\s+to)?|todo:?)\s+([^.!?\n;]+)/gi;let m;
@@ -814,7 +845,7 @@ function showQ(q,hint,step,ack){
   ivta.placeholder=asked===0?"I'm...":'Type here, or press Talk';
   showSoFar();ivta.value='';ivta.disabled=false;ivta.focus();
 }
-function setBusy(b,msg){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivskip').disabled=b;document.getElementById('ivstat').textContent=msg||''}
+function setBusy(b){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivskip').disabled=b;document.getElementById('ivstat').textContent='';if(b)startLoader();else stopLoader()}
 function todayStr(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.toLocaleDateString('en-US',{weekday:'long'})}, ${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
 async function askAI(finish){
   const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,finish:!!finish,today:todayStr()})});
