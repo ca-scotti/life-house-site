@@ -135,6 +135,30 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .redo{font:inherit;font-size:14px;margin-top:6px;background:none;border:2px solid rgba(255,255,255,.18);color:var(--ink);padding:6px 10px;cursor:pointer;width:100%;text-align:left}
 .redo:hover{border-color:var(--acc)}
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.nextup{position:fixed;z-index:2;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(840px,calc(100vw - 32px));max-height:48vh;overflow-y:auto;box-sizing:border-box;display:none;flex-direction:column;gap:10px;padding:12px 14px 14px;background:rgba(27,29,43,.66);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 0 rgba(17,19,29,.6);font-family:'Pixelify Sans',system-ui,sans-serif;color:var(--ink)}
+.nextup.show{display:flex}
+.nuhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+#nuh{font-size:20px;font-weight:600}
+.nusub{font-size:14px;color:var(--muted)}
+.nucards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.nucard{background:rgba(38,42,61,.92);border:2px solid #3a3e58;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.nurm{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nunew{color:var(--acc)}
+.nut{font-size:16px;line-height:1.3}
+.nutags{display:flex;gap:6px;flex-wrap:wrap}
+.nutags span{font-size:12px;padding:1px 6px;border:2px solid #5d6288;color:#e2dacd}
+.nubtns{display:flex;gap:12px;margin-top:auto;padding-top:4px;align-items:center}
+.nudone{font:inherit;font-size:15px;padding:6px 16px;border:2px solid #11131d;background:var(--acc);color:#3a2a10;cursor:pointer;box-shadow:0 3px 0 #a07a2a}
+.nudone:active{transform:translateY(2px);box-shadow:0 1px 0 #a07a2a}
+.nulater{font:inherit;font-size:13px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px 0}
+.nudone:focus-visible,.nulater:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.nuempty{color:var(--muted);font-size:15px;padding:4px 2px}
+@media (max-width:640px){.nucards{grid-template-columns:1fr}}
+.toast{position:fixed;z-index:7;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-16px);opacity:0;transition:opacity .25s,transform .25s;background:var(--acc);color:#3a2a10;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:18px;padding:10px 18px;border:2px solid #11131d;box-shadow:0 4px 0 #a07a2a;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+.more{list-style:none}
+.scard .tmore{font-size:13px;color:var(--muted);padding-left:18px}
 .pane{position:fixed;z-index:2;width:280px;max-width:calc(100vw - 32px);background:rgba(27,29,43,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 0 rgba(17,19,29,.6);padding:12px 14px 14px;color:var(--ink);display:none}
 .pane.show{display:block;animation:pop .18s ease-out}
 @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -198,6 +222,8 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
     <div class="obrow"><button class="oblink" id="sumback">Keep talking</button><button class="cbtn" id="obgo">Build my house</button></div>
   </div>
 </div>
+<div class="nextup" id="nextup" aria-live="polite"><div class="nuhead"><span id="nuh">Pick one to start</span><span class="nusub" id="nusub"></span></div><div class="nucards" id="nucards"></div></div>
+<div class="toast" id="toast" role="status"></div>
 <div class="pane" id="pane"><button class="x" id="px" aria-label="Close">x</button><h2><span id="pn"></span><span class="tag" id="pt"></span></h2><p id="pd"></p><ul id="pl"></ul></div>
 <script>
 const WH=62,PH=12,RS=88,GAP=92;
@@ -205,9 +231,9 @@ let COLS=2,ROWS=2,HSX=180,HSY=180,GRID=[];
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let CW,CH,OX,OY,IMG,D,N,cR,cG,cB,pX,pY,pZ,dep,nrm,emi,edge,oid,rid,outd;
 function setup(){
-  const vw=innerWidth||800,vh=innerHeight||600;
-  const span=HSX+HSY,sc=Math.max(1.2,Math.min(vw/(span+80),vh/(span/2+150)));
-  CW=Math.max(1,Math.ceil(vw/sc));CH=Math.max(1,Math.ceil(vh/sc));OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(CH/2-(span/2-47)/2);
+  const vw=innerWidth||800,vh=innerHeight||600,res=Math.min(230,vh*.38),vhe=vh-res;
+  const span=Math.max(HSX+HSY,360),sc=Math.max(1.2,Math.min(vw/(span+80),vhe/(span/2+150)));
+  CW=Math.max(1,Math.ceil(vw/sc));CH=Math.max(1,Math.ceil(vh/sc));OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(vhe/sc/2-((HSX+HSY)/2-47)/2);
   cv.width=CW;cv.height=CH;IMG=ctx.createImageData(CW,CH);D=IMG.data;N=CW*CH;
   cR=new Float32Array(N);cG=new Float32Array(N);cB=new Float32Array(N);pX=new Float32Array(N);pY=new Float32Array(N);pZ=new Float32Array(N);dep=new Float32Array(N);
   nrm=new Uint8Array(N);emi=new Uint8Array(N);edge=new Uint8Array(N);oid=new Int16Array(N);rid=new Int8Array(N);outd=new Uint8Array(N);
@@ -416,22 +442,25 @@ const TPL={
   spare:{T:T_SPARE,items:[],rar:[],winL:[34,58],winR:[34,58],start:0},
 };
 let rooms=[],SHELL=[];
-function gridFor(n){const cols=n<=1?1:n<=4?2:3;return{cols,rows:Math.max(1,Math.ceil(n/cols))}}
+const CELLS=[[0,0],[1,0],[0,1],[1,1],[2,0],[2,1],[0,2],[1,2],[2,2]];
 function setLayout(list){
-  const n=Math.max(1,Math.min(9,list.length)),g=gridFor(n);
-  COLS=g.cols;ROWS=g.rows;HSX=COLS*GAP-4;HSY=ROWS*GAP-4;GRID=[];
-  rooms=[];
-  for(let i=0;i<COLS*ROWS;i++){
-    const src=list[i]||{name:'Spare room',tpl:'spare',spare:true},gx=i%COLS,gy=Math.floor(i/COLS),T=TPL[src.tpl]||TPL.spare;
+  const n=Math.max(1,Math.min(9,list.length)),cells=CELLS.slice(0,n);
+  COLS=Math.max(...cells.map(c=>c[0]))+1;ROWS=Math.max(...cells.map(c=>c[1]))+1;HSX=COLS*GAP-4;HSY=ROWS*GAP-4;
+  const all=[];for(let gy=0;gy<ROWS;gy++)for(let gx=0;gx<COLS;gx++)all.push([gx,gy]);
+  const order=cells.concat(all.filter(s=>!cells.some(c=>c[0]===s[0]&&c[1]===s[1])));
+  rooms=[];GRID=new Array(COLS*ROWS);
+  order.forEach(([gx,gy],i)=>{
+    const src=list[i]||{name:'Empty spot',tpl:'spare',spare:true},T=TPL[src.tpl]||TPL.spare;
     const r={name:src.name,tpl:TPL[src.tpl]?src.tpl:'spare',spare:!!src.spare||!TPL[src.tpl],gx,gy,ox:gx*GAP,oy:gy*GAP,w:src.w??.6,xp:0,items:[]};
-    r.dw=r.w;const hasL=gx===0,hasR=gy===0;let owned=0;const lv=src.lv??T.start;
+    r.dw=src.dw??r.w;const hasL=gx===0,hasR=gy===0;let owned=0;const lv=src.lv??T.start;
     T.items.forEach((def,k)=>{if(def.need==='L'&&!hasL)return;if(def.need==='R'&&!hasR)return;
       const o=def.fx?def.fx():{b:def.b(),L:def.L||[]};
-      const it={n:def.n,rar:T.rar[k]||'c',own:owned<lv,t0:0,landed:1};if(it.own)owned++;
+      const own=src.owned?src.owned.includes(def.n):owned<lv;
+      const it={n:def.n,rar:T.rar[k]||'c',own,t0:0,landed:1};if(own)owned++;
       it.boxes=o.b.map(b=>Object.assign(b,{x:b.x+r.ox,y:b.y+r.oy}));
       it.L=(o.L||[]).map(l=>Object.assign({},l,{x:l.x+r.ox,y:l.y+r.oy}));r.items.push(it)});
-    GRID.push(i);rooms.push(r);
-  }
+    GRID[gy*COLS+gx]=rooms.length;rooms.push(r);
+  });
   WINS=[];
   rooms.forEach((r,ri)=>{const T=TPL[r.tpl];
     if(r.gx===0&&T.winL)WINS.push({room:ri,pl:'X',a0:r.oy+T.winL[0],a1:r.oy+T.winL[1],z0:24,z1:48});
@@ -541,30 +570,91 @@ function drawCapy(){
 
 let last=0;
 function loop(now){requestAnimationFrame(loop);if(now-last<45)return;last=now;rooms.forEach(r=>r.dw+=(r.w-r.dw)*.1);render(now)}
-const TODO={
+const DEMO_TODOS={
   Work:['Reply to the client email about the deck','Finish slides 4 to 7','Book a 1:1 with your manager','Clear out the downloads folder'],
   Family:['Call mom on Sunday','Buy a birthday gift for dad','Plan a dinner with your siblings'],
   Gym:['Go for a 30 minute run','Book Thursday spin class','Pack your gym bag tonight'],
   French:['Do a 10 minute Duolingo lesson','Watch one episode in French','Review verb flashcards','Finish homework for Tuesday class'],
 };
-for(const k in TODO)TODO[k]=TODO[k].map(t=>({t,done:false}));
-const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TODO={};let AREAS_ST=[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function DAY(){const d=new Date();return Math.floor((d.getTime()-d.getTimezoneOffset()*6e4)/864e5)}
+const WDAYS=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+function guessDue(t){t=t.toLowerCase();if(/\b(today|tonight)\b/.test(t))return 0;if(/\btomorrow\b/.test(t))return 1;
+  const wd=new Date().getDay();for(let k=0;k<7;k++)if(t.includes(WDAYS[k]))return (k-wd+7)%7;
+  if(/\bthis week\b/.test(t))return 6;return -1}
+function guessTiny(t){return /\b(\d+\s*min|now|text|send|call|message|list|write down|pick|look up|reply)\b/i.test(t)||t.length<26}
+function mkTodo(x,ord){if(typeof x==='string')x={text:x};const t=String(x.text??x.t??'').trim();
+  const dd=Number.isInteger(x.due_in_days)?x.due_in_days:guessDue(t);
+  return{t,done:false,tiny:typeof x.tiny==='boolean'?x.tiny:guessTiny(t),due:dd>=0?DAY()+dd:null,goal:Number.isInteger(x.goal)?x.goal:-1,ord,notNow:-1}}
 const left=n=>(TODO[n]||[]).filter(x=>!x.done).length;
-function taskList(ri){return (TODO[rooms[ri].name]||[]).map((x,i)=>`<li><button class="tl${x.done?' done':''}" data-r="${ri}" data-i="${i}" ${x.done?'aria-disabled="true"':''} aria-label="${x.done?'Done: ':'Mark done: '}${esc(x.t)}"><span class="bx"></span><span>${esc(x.t)}</span></button></li>`).join('')}
-function wireTasks(root){root.querySelectorAll('.tl').forEach(b=>b.onclick=()=>{if(!b.classList.contains('done'))finishTask(+b.dataset.r,+b.dataset.i)})}
+const areaOf=n=>AREAS_ST.find(a=>a.name===n);
+const roomIdx=n=>rooms.findIndex(r=>!r.spare&&r.name===n);
+let slots=[null,null,null],lastArea=null,streak=0,doneCount=0,expanded={};
+function resetProgress(){slots=[null,null,null];lastArea=null;streak=0;doneCount=0;expanded={}}
+function saveHouse(){rooms.forEach(r=>{if(r.spare)return;const a=areaOf(r.name);if(a){a.w=r.w;a.dw=r.dw;a.owned=r.items.filter(it=>it.own).map(it=>it.n)}})}
+function rebuildHouse(){setLayout(AREAS_ST.filter(a=>a.built).sort((p,q)=>p.bi-q.bi).map(a=>({name:a.name,tpl:a.tpl,w:a.w,dw:a.dw,lv:a.lv,owned:a.owned})))}
+function score(name,x){const today=DAY(),a=areaOf(name);let s=0;
+  if(x.due!==null){const d=x.due-today;if(d<=2)s+=5;else if(d<=7)s+=3}
+  if(x.tiny)s+=doneCount===0?4:2;
+  if(name===lastArea&&streak<3)s+=3;
+  if(a){if(a.built&&a.w<.45)s+=2;if(!a.built)s+=1}
+  const n=(TODO[name]||[]).length||1;s+=1-x.ord/n;
+  if(x.notNow===today)s-=4;
+  return s}
+function candidates(taken){const out=[];for(const a of AREAS_ST)(TODO[a.name]||[]).forEach((x,i)=>{if(!x.done&&!taken.some(c=>c&&c.a===a.name&&c.i===i))out.push({a:a.name,i,x})});return out}
+function allowed(c,others){if(others.filter(o=>o&&o.a===c.a).length>=2)return false;const k=c.x.t.toLowerCase();return !others.some(o=>o&&TODO[o.a][o.i].t.toLowerCase()===k)}
+function best(others,filter,key){let b=null,bs=-1e9;for(const c of candidates(others)){if(!allowed(c,others)||(filter&&!filter(c)))continue;const s=key?key(c):score(c.a,c.x);if(s>bs){bs=s;b=c}}return b}
+function fillInitial(){slots=[null,null,null];
+  slots[0]=best(slots,c=>c.x.tiny)||best(slots);
+  slots[1]=best(slots,c=>c.x.due!==null,c=>score(c.a,c.x)-(c.x.due-DAY())*10)||best(slots);
+  slots[2]=best(slots,c=>c.x.goal===0)||best(slots,c=>areaOf(c.a)===AREAS_ST[0])||best(slots);
+  for(let k=0;k<3;k++)if(!slots[k])slots[k]=best(slots)}
+function refill(k){const others=slots.map((s,j)=>j===k?null:s);slots[k]=best(others)}
+function dueLabel(x){if(x.due===null)return '';const d=x.due-DAY();if(d<0)return 'overdue';if(d===0)return 'due today';if(d===1)return 'due tomorrow';
+  if(d<7)return 'due '+new Date(Date.now()+d*864e5).toLocaleDateString('en-US',{weekday:'short'});return ''}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2800)}
+function renderNext(){
+  const nu=document.getElementById('nextup');
+  if(document.getElementById('ob').classList.contains('show')||!AREAS_ST.length){nu.classList.remove('show');return}
+  nu.classList.add('show');
+  document.getElementById('nuh').textContent=doneCount===0?'Pick one to start':'Up next';
+  document.getElementById('nusub').textContent=doneCount===0&&AREAS_ST.some(a=>!a.built)?'Your house grows a room the first time you finish something in a new area.':'';
+  const box=document.getElementById('nucards');
+  if(!slots.some(Boolean)){box.innerHTML='<div class="nuempty">All clear. Nothing is waiting right now.</div>';return}
+  box.innerHTML=slots.map((s,k)=>{if(!s)return '';const x=TODO[s.a][s.i],a=areaOf(s.a),tags=[];
+    if(x.tiny)tags.push('10 min or less');const dl=dueLabel(x);if(dl)tags.push(dl);
+    return `<div class="nucard"><div class="nurm"><span class="dot${a&&a.built&&a.w>.45?' lit':''}"></span><span>${esc(s.a)}</span>${a&&!a.built?'<span class="nunew">builds a new room</span>':''}</div><div class="nut">${esc(x.t)}</div>${tags.length?`<div class="nutags">${tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:''}<div class="nubtns"><button class="nudone" data-k="${k}">Done</button><button class="nulater" data-k="${k}">Not now</button></div></div>`}).join('');
+  box.querySelectorAll('.nudone').forEach(b=>b.onclick=()=>{const s=slots[+b.dataset.k];if(s)completeTodo(s.a,s.i)});
+  box.querySelectorAll('.nulater').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,s=slots[k];if(!s)return;TODO[s.a][s.i].notNow=DAY();refill(k);renderNext()});
+}
+function taskList(name,limit){const all=(TODO[name]||[]).map((x,i)=>({x,i})).filter(o=>!o.x.done).sort((p,q)=>p.x.ord-q.x.ord);
+  const shown=limit?all.slice(0,limit):all;
+  let h=shown.map(({x,i})=>`<li><button class="tl" data-a="${esc(name)}" data-i="${i}" aria-label="Mark done: ${esc(x.t)}"><span class="bx"></span><span>${esc(x.t)}</span></button></li>`).join('');
+  if(limit&&all.length>limit)h+=`<li class="more"><button class="oblink morebtn" data-a="${esc(name)}">${all.length-limit} more here</button></li>`;
+  return h}
+function wireTasks(root,rerender){root.querySelectorAll('.tl').forEach(b=>b.onclick=()=>completeTodo(b.dataset.a,+b.dataset.i));
+  root.querySelectorAll('.morebtn').forEach(b=>b.onclick=()=>{expanded[b.dataset.a]=true;rerender()})}
 let paneRoom=-1;
 function fillPane(ri){
   const r=rooms[ri],n=left(r.name);
-  const tg=document.getElementById('pt');tg.textContent=r.w>.45?'Lights on':'Lights dim';tg.className='tag'+(r.w>.45?' lit':'');
-  document.getElementById('pd').textContent=r.spare?'An empty room. Add a part of your life in setup to move something in.':n===0?'All done here. Nice work.':(r.w>.45?`${n} left. Each one finished gives you a chest.`:`${n} waiting here. One brings the lights back.`);
-  const pl=document.getElementById('pl');pl.innerHTML=taskList(ri);wireTasks(pl);
+  const tg=document.getElementById('pt');tg.textContent=r.spare?'Empty':(r.w>.45?'Lights on':'Lights dim');tg.className='tag'+(!r.spare&&r.w>.45?' lit':'');
+  document.getElementById('pd').textContent=r.spare?'An empty spot. It becomes a room the first time you finish something in a new area.':n===0?'All done here. Nice work.':(r.w>.45?`${n} left. Each one finished gives you a chest.`:`${n} waiting here. One brings the lights back.`);
+  const pl=document.getElementById('pl');pl.innerHTML=r.spare?'':taskList(r.name,expanded[r.name]?0:3);wireTasks(pl,()=>fillPane(ri));
 }
-function finishTask(ri,i){
-  const r=rooms[ri],x=TODO[r.name][i];if(x.done)return;x.done=true;r.w=1;capyRoom=ri;
-  const[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,10,false);
-  if(paneRoom===ri&&pane.classList.contains('show'))fillPane(ri);
+function completeTodo(name,i){
+  const x=(TODO[name]||[])[i];if(!x||x.done)return;x.done=true;
+  const a=areaOf(name);let built=false;
+  if(a&&!a.built){saveHouse();a.built=true;a.bi=Math.max(0,...AREAS_ST.filter(o=>o.built&&o!==a).map(o=>o.bi))+1;a.w=1;a.dw=.3;a.lv=1;closePane();rebuildHouse();built=true}
+  const ri=roomIdx(name);if(ri>=0){rooms[ri].w=1;if(a)a.w=1}
+  if(name===lastArea)streak++;else{lastArea=name;streak=1}doneCount++;
+  const k=slots.findIndex(s=>s&&s.a===name&&s.i===i);if(k>=0)refill(k);
+  if(ri>=0){const r=rooms[ri],[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,10,false)}
+  if(built&&ri>=0){const now=performance.now();let d=250;rooms[ri].items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=220}});toast(`New room: ${name}`)}
+  if(paneRoom>=0&&pane.classList.contains('show'))fillPane(paneRoom);
   if(drawer.classList.contains('open'))renderTodos();
-  setTimeout(()=>openChest(ri),380);
+  renderNext();
+  if(ri>=0)setTimeout(()=>openChest(ri),built?1400:380);
 }
 const RNAME={c:'Common',r:'Rare',e:'Epic'},RCOL={c:'#a8e4ff',r:'#c59bff',e:'#ffd35c',n:'#9aa0b5'};
 function roll(r){
@@ -632,12 +722,10 @@ cv.addEventListener('click',e=>{const ri=hitRoom(e);if(ri>=0)openPane(ri,e.clien
 cv.addEventListener('mousemove',e=>{cv.style.cursor=hitRoom(e)>=0?'pointer':'default'});
 document.getElementById('px').onclick=closePane;
 const drawer=document.getElementById('drawer'),mb=document.getElementById('mb');
-function renderTodos(){
-  const el=document.getElementById('todos');
-  el.innerHTML=rooms.map((r,i)=>r.spare?'':`<div class="grp"><button class="gh" data-i="${i}"><span class="dot${r.w>.45?' lit':''}"></span><span class="gn">${r.name}</span><span class="cnt">${left(r.name)} left</span></button><ul>${taskList(i)}</ul></div>`).join('');
-  el.querySelectorAll('.gh').forEach(b=>b.onclick=()=>{closePane();sel=+b.dataset.i});
-  wireTasks(el);
-}
+function renderTodos(){const el=document.getElementById('todos');
+  el.innerHTML=AREAS_ST.map(a=>`<div class="grp"><button class="gh" data-a="${esc(a.name)}"><span class="dot${a.built&&a.w>.45?' lit':''}"></span><span class="gn">${esc(a.name)}</span><span class="cnt">${a.built?left(a.name)+' left':'not built yet'}</span></button><ul>${taskList(a.name,expanded[a.name]?0:3)}</ul></div>`).join('');
+  el.querySelectorAll('.gh').forEach(b=>b.onclick=()=>{closePane();sel=roomIdx(b.dataset.a)});
+  wireTasks(el,renderTodos)}
 function openDrawer(){renderTodos();drawer.classList.add('open');mb.setAttribute('aria-expanded','true');document.getElementById('dx').focus()}
 function closeDrawer(){drawer.classList.remove('open');mb.setAttribute('aria-expanded','false')}
 mb.onclick=openDrawer;document.getElementById('dx').onclick=()=>{closeDrawer();mb.focus()};
@@ -698,7 +786,6 @@ function extract(text){
 }
 const TPL_OF_SLOT=['desk','living','gym','nook'];
 const KIND_LABEL={desk:'Desk room',living:'Living room',gym:'Gym',nook:'Reading nook'};
-const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
 const DEMO_LIST=[{name:'Work',tpl:'desk',lv:4,w:.95},{name:'Family',tpl:'living',lv:5,w:.8},{name:'Gym',tpl:'gym',lv:3,w:.15},{name:'French',tpl:'nook',lv:2,w:.3}];
 const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=document.getElementById('sums');
 const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
@@ -728,8 +815,9 @@ function showQ(q,hint,step,ack){
   showSoFar();ivta.value='';ivta.disabled=false;ivta.focus();
 }
 function setBusy(b,msg){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivskip').disabled=b;document.getElementById('ivstat').textContent=msg||''}
+function todayStr(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.toLocaleDateString('en-US',{weekday:'long'})}, ${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
 async function askAI(finish){
-  const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,finish:!!finish})});
+  const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,finish:!!finish,today:todayStr()})});
   if(!r.ok){let m='error '+r.status;try{const e=await r.json();if(e&&e.error)m+=', '+e.error}catch(_){}throw new Error(m)}
   const j=await r.json();if(!j||typeof j.question!=='string')throw new Error('bad reply');
   return j;
@@ -770,23 +858,27 @@ function uniq(list){const seen={};return list.map(r=>{let n=String(r.name||'Room
 let picked=[];
 function showSummary(){
   plan.rooms=uniq(plan.rooms.slice(0,9));picked=plan.rooms.map(()=>true);
-  document.getElementById('sumlead').textContent=(plan.message?plan.message+' ':'')+'Tap a room to keep it or leave it out.';
+  document.getElementById('sumlead').textContent=(plan.message?plan.message+' ':'')+'Tap an area to keep it or leave it out. Your house starts with one small room and grows from there.';
   const gl=plan.goals||[];
   document.getElementById('goals').innerHTML=gl.length?`<span class="gl">Your big goals</span>`+gl.map(g=>`<span class="g">${esc(String(g))}</span>`).join(''):'';
   const grid=document.getElementById('sumgrid');
-  grid.innerHTML=plan.rooms.map((r,i)=>`<button class="scard" type="button" aria-pressed="true" data-i="${i}"><span class="top"><span class="nm">${esc(r.name)}</span><span class="tick" aria-hidden="true">✓</span></span><span class="why">${esc(r.why||KIND_LABEL[r.template]||'Room')}</span><span class="tds">${(r.todos||[]).map(t=>`<span class="td">${esc(String(t))}</span>`).join('')}</span></button>`).join('');
+  grid.innerHTML=plan.rooms.map((r,i)=>`<button class="scard" type="button" aria-pressed="true" data-i="${i}"><span class="top"><span class="nm">${esc(r.name)}</span><span class="tick" aria-hidden="true">✓</span></span><span class="why">${esc(r.why||KIND_LABEL[r.template]||'Room')}</span><span class="tds">${(r.todos||[]).slice(0,2).map(t=>`<span class="td">${esc(String(t&&t.text!==undefined?t.text:t))}</span>`).join('')}</span>${(r.todos||[]).length>2?`<span class="tmore">+${r.todos.length-2} more to-dos</span>`:''}</button>`).join('');
   grid.querySelectorAll('.scard').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;picked[i]=!picked[i];b.setAttribute('aria-pressed',picked[i]);oberr2()});
   oberr2();ivs.style.display='none';sums.style.display='flex';document.getElementById('obgo').focus();
 }
-function oberr2(){const n=picked.filter(Boolean).length,b=document.getElementById('obgo');b.textContent=n?`Build my house (${n} ${n===1?'room':'rooms'})`:'Pick at least one room';b.disabled=!n}
+function oberr2(){const n=picked.filter(Boolean).length,b=document.getElementById('obgo');b.textContent=n?`Start my house (${n} ${n===1?'area':'areas'})`:'Pick at least one area';b.disabled=!n}
 function buildFromPlan(){
   const keep=plan.rooms.filter((r,i)=>picked[i]);if(!keep.length)return false;
   for(const k in TODO)delete TODO[k];
-  setLayout(keep.map(r=>({name:r.name,tpl:(TPL[r.template]&&r.template!=='spare')?r.template:'desk',lv:2,w:.6})));
-  keep.forEach(r=>TODO[r.name]=(r.todos||[]).slice(0,8).map(t=>({t:String(t),done:false})));
-  return true;
+  AREAS_ST=keep.map((r,k)=>({name:r.name,tpl:(TPL[r.template]&&r.template!=='spare')?r.template:'desk',why:r.why||'',built:k===0,bi:k===0?0:-1,w:.6,dw:.6,lv:k===0?2:1}));
+  keep.forEach(r=>TODO[r.name]=(r.todos||[]).slice(0,8).map((t,i)=>mkTodo(t,i)));
+  resetProgress();rebuildHouse();fillInitial();return true;
 }
-function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);setLayout(DEMO_LIST)}
+function startDemo(){
+  AREAS_ST=DEMO_LIST.map((d,k)=>({name:d.name,tpl:d.tpl,why:'',built:true,bi:k,w:d.w,dw:d.w,lv:d.lv}));
+  for(const k in TODO)delete TODO[k];for(const n in DEMO_TODOS)TODO[n]=DEMO_TODOS[n].map((t,i)=>mkTodo(t,i));
+  resetProgress();rebuildHouse();fillInitial();
+}
 function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=150}}))}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition,micBtn=document.getElementById('mic');let rec=null,micOn=false,micBase='';
 if(!SR)micBtn.style.display='none';
@@ -813,17 +905,17 @@ micBtn.onclick=()=>{
 function openSetup(){
   hist=[];plan=null;asked=0;seenOrder=[];oberr.textContent='';setBusy(false);stopMic();
   sums.style.display='none';ivs.style.display='flex';ob.classList.add('show');closeDrawer();closePane();
-  showQ(FIRST_Q,FIRST_HINT,1,'');
+  showQ(FIRST_Q,FIRST_HINT,1,'');renderNext();
 }
 ivnext.onclick=()=>next(false);
 document.getElementById('ivskip').onclick=()=>next(true);
 ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
 document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',5,'')};
 document.getElementById('restart').onclick=openSetup;
-document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn()};
-document.getElementById('obskip').onclick=()=>{stopMic();resetDemo();ob.classList.remove('show');bringIn()};
+document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn();renderNext()};
+document.getElementById('obskip').onclick=()=>{stopMic();startDemo();ob.classList.remove('show');bringIn();renderNext()};
 document.getElementById('redo').onclick=openSetup;
-setLayout(DEMO_LIST);
+startDemo();
 openSetup();
 requestAnimationFrame(loop);
 </script>
