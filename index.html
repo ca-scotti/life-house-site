@@ -84,6 +84,12 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .mic[aria-pressed="true"] .micdot{background:#fff;animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.3}}
 .ivstat{color:var(--muted);font-size:15px}
+.ivleft{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.ivack{margin:0;font-size:clamp(15px,1.7vw,18px);color:var(--acc);min-height:1.2em}
+.ivack:empty{display:none}
+.sofar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.sofar .sl{font-size:13px;color:var(--muted);margin-right:2px}
+.sofar .sc{font-size:14px;padding:3px 9px;background:#2e3049;border:2px solid #5d6288}
 .cbtn:disabled{opacity:.5;cursor:wait}
 .sumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;flex:1;align-content:start}
 .scard{font:inherit;text-align:left;color:var(--ink);cursor:pointer;background:#262a3d;border:3px solid var(--acc);box-shadow:0 5px 0 #a07a2a;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -176,12 +182,12 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obt">
   <div class="obc" id="ivs">
     <div class="ivtop"><span class="ivn" id="ivn">Let's build your house</span><button class="oblink" id="obskip">Skip, show me the demo house</button></div>
-    <div class="obhead"><div><h2 id="obt">First, tell me who you are.</h2>
-    <p class="lead" id="ivhint">Your name, what you do, what your days look like. Talk or type, as much as you like.</p></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
+    <div class="obhead"><div><p class="ivack" id="ivack" aria-live="polite"></p><h2 id="obt"></h2>
+    <p class="lead" id="ivhint"></p><div class="sofar" id="sofar"></div></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
     <div class="ivbox"><textarea id="ivta" aria-labelledby="obt" placeholder="I'm..."></textarea>
       <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Talk instead of typing"><span class="micdot"></span><span id="miclbl">Talk</span></button></div>
     <div class="oberr" id="oberr" role="alert" aria-live="polite"></div>
-    <div class="obrow"><span class="ivstat" id="ivstat"></span><button class="cbtn" id="ivnext">Next</button></div>
+    <div class="obrow"><span class="ivleft"><button class="oblink" id="ivskip" type="button">Skip this one</button><span class="ivstat" id="ivstat"></span></span><button class="cbtn" id="ivnext">Next</button></div>
   </div>
   <div class="obc" id="sums" style="display:none">
     <div class="ivtop"><span class="ivn">Your house is ready</span><button class="oblink" id="restart">Start over</button></div>
@@ -694,24 +700,37 @@ const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
 const DEMO_LIST=[{name:'Work',tpl:'desk',lv:4,w:.95},{name:'Family',tpl:'living',lv:5,w:.8},{name:'Gym',tpl:'gym',lv:3,w:.15},{name:'French',tpl:'nook',lv:2,w:.3}];
 const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=document.getElementById('sums');
 const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
-const FIRST_Q='First, tell me who you are.',FIRST_HINT='Your name, what you do, what your days look like. Talk or type, as much as you like.';
+const STEPS=['About you','Big goals','People and areas','In progress','This week','Every day','Putting off'];
+const FIRST_Q="What's your name, and what fills most of your weekdays?";
+const FIRST_HINT='One or two sentences is plenty. Like: "I\'m Ana, a nurse on night shifts" or "I\'m Leo, finishing my master\'s and working part-time."';
 const FB_QS=[
-  ['What are your big goals right now?','This year or even bigger. Career, health, people, anything you dream about.'],
-  ['Which parts of your life take up the most space?','Work, study, family, friends, health, home, money, hobbies...'],
-  ['What are you working on in those areas right now?','Projects, classes, plans, commitments.'],
-  ["What's on your plate this week?",'Deadlines and to-dos, big or small. "I need to..." works great.'],
-  ['What everyday things do you want to keep up with?','Habits, routines, chores. Like drinking water, laundry, calling home.'],
-  ["What have you been putting off?",'No judgment. Naming it is the first step.']];
-let hist=[],plan=null,offline=false,busy=false,asked=0;
-function showQ(q,hint){
-  document.getElementById('obt').textContent=q;document.getElementById('ivhint').textContent=hint||'';
-  document.getElementById('ivn').textContent=asked===0?"Let's build your house":`Question ${asked+1}`;
-  ivta.value='';ivta.disabled=false;ivta.focus();
+  [2,'If the next 12 months went really well, what would be different?','Name 2 or 3 things. Like: "I finished my thesis, I can run 10k, I feel calmer about money."'],
+  [3,'Besides that, who and what needs your attention most weeks?','People (partner, parents, kids, friends), your health, your home, money, a side project.'],
+  [4,"What's the biggest thing you're in the middle of right now, and what's the next step on it?",'Like: "Applying for jobs, I need to update my CV" or "Moving flats, I need to book a van."'],
+  [5,'What has to happen in the next 7 days?','Deadlines, bills, appointments, replies you owe someone. "I need to..." works great.'],
+  [6,'What small things do you wish you did every day or every week?','Like: take my meds, drink water, laundry on Sundays, call mom, 10 minutes of French.'],
+  [7,"What's one thing you've been avoiding for a while?","It can be tiny. The email you haven't opened, the dentist, the closet. No judgment."]];
+let hist=[],plan=null,offline=false,busy=false,asked=0,curStep=1,aiErr='';
+let seenOrder=[];
+function showSoFar(){
+  const cur=(plan&&!plan.guessed&&plan.rooms||[]).map(r=>String(r.name));
+  cur.forEach(n=>{if(!seenOrder.includes(n))seenOrder.push(n)});
+  const names=seenOrder.filter(n=>cur.includes(n)),el=document.getElementById('sofar');
+  el.innerHTML=names.length?'<span class="sl">Rooms so far</span>'+names.map(n=>`<span class="sc">${esc(String(n))}</span>`).join(''):'';
 }
-function setBusy(b,msg){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivstat').textContent=msg||''}
+function showQ(q,hint,step,ack){
+  curStep=Math.max(1,Math.min(7,Math.round(step||curStep)));
+  document.getElementById('ivn').textContent=`Step ${curStep} of 7 · ${STEPS[curStep-1]}`;
+  document.getElementById('ivack').textContent=ack||'';
+  document.getElementById('obt').textContent=q;document.getElementById('ivhint').textContent=hint||'';
+  document.getElementById('ivskip').style.visibility=asked===0?'hidden':'visible';
+  ivta.placeholder=asked===0?"I'm...":'Type here, or press Talk';
+  showSoFar();ivta.value='';ivta.disabled=false;ivta.focus();
+}
+function setBusy(b,msg){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivskip').disabled=b;document.getElementById('ivstat').textContent=msg||''}
 async function askAI(finish){
   const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,finish:!!finish})});
-  if(!r.ok)throw new Error('status '+r.status);
+  if(!r.ok){let m='error '+r.status;try{const e=await r.json();if(e&&e.error)m+=', '+e.error}catch(_){}throw new Error(m)}
   const j=await r.json();if(!j||typeof j.question!=='string')throw new Error('bad reply');
   return j;
 }
@@ -724,25 +743,27 @@ function fallbackPlan(){
   for(const task of extract(all)){const tt=' '+task.toLowerCase()+' ';let best=areas[0],bs=0;
     for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
     (tasks[best.id]=tasks[best.id]||[]).push(task)}
-  const gAns=(hist.find((m,i)=>m.role==='user'&&hist[i-1]&&hist[i-1].content===FB_QS[0][0])||{}).content||'';
-  const goals=gAns.split(/[.;\n]|,\s*|\s+and\s+(?=i\s)/i).map(s=>s.replace(/^\s*(?:and|also|i\s+want\s+to|i'?d\s+like\s+to|my\s+goal\s+is\s+to|to)\s+/i,'').trim()).filter(s=>s.split(' ').length>=2&&s.length<=60).slice(0,6).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
-  return{goals,rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:(tasks[a.id]||[]).concat(a.start).slice(0,7)})),message:''};
+  const gAns=(hist.find((m,i)=>m.role==='user'&&hist[i-1]&&hist[i-1].content===FB_QS[0][1])||{}).content||'';
+  const goals=gAns.split(/[.;\n]|,\s*|\s+and\s+(?=i\s)/i).map(s=>s.replace(/^\s*(?:and|also|i\s+want\s+to|i'?d\s+like\s+to|my\s+goal\s+is\s+to|to)\s+/i,'').trim()).filter(s=>s.split(' ').length>=2&&s.length<=60&&!/^\(skipped/i.test(s)).slice(0,6).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
+  return{guessed:!found.length,goals,rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:(tasks[a.id]||[]).concat(a.start).slice(0,7)})),message:''};
 }
-async function next(){
-  if(busy)return;const text=ivta.value.trim();
-  if(!text){oberr.textContent='Write or say something first, even one sentence.';return}
+async function next(skip){
+  if(busy)return;let text=ivta.value.trim();
+  if(skip)text='(Skipped this question.)';
+  else if(!text){oberr.textContent='Write or say something first, even one sentence. Or press "Skip this one".';return}
   oberr.textContent='';stopMic();
   hist.push({role:'user',content:asked===0?`(The app asked: "${FIRST_Q}")\n${text}`:text});asked++;
   if(!offline){
     setBusy(true,'Thinking...');
     try{
-      const j=await askAI(asked>=10);setBusy(false);
+      const j=await askAI(asked>=11);setBusy(false);
       if(Array.isArray(j.rooms)&&j.rooms.length)plan={rooms:j.rooms,goals:Array.isArray(j.goals)?j.goals:[],message:j.message||''};
       if(j.done&&plan){showSummary();return}
-      hist.push({role:'assistant',content:j.question});showQ(j.question,j.hint||'');return;
-    }catch(e){setBusy(false);offline=true}
+      hist.push({role:'assistant',content:j.question});showQ(j.question,j.hint||'',j.step,j.ack||'');return;
+    }catch(e){setBusy(false);offline=true;aiErr=String(e&&e.message||e)}
   }
-  if(asked-1<FB_QS.length){const q=FB_QS[asked-1];hist.push({role:'assistant',content:q[0]});showQ(q[0],q[1]);return}
+  if(asked-1<FB_QS.length){const q=FB_QS[asked-1];plan=fallbackPlan();hist.push({role:'assistant',content:q[1]});showQ(q[1],q[2],q[0],'');
+    if(aiErr)document.getElementById('ivstat').textContent=`Simple questions: the AI isn't connected (${aiErr})`;return}
   plan=fallbackPlan();showSummary();
 }
 function uniq(list){const seen={};return list.map(r=>{let n=String(r.name||'Room').trim().slice(0,24)||'Room';const base=n;let k=2;while(seen[n.toLowerCase()])n=base+' '+k++;seen[n.toLowerCase()]=1;return Object.assign({},r,{name:n})})}
@@ -790,13 +811,14 @@ micBtn.onclick=()=>{
   catch(_){oberr.textContent='Could not start the microphone. Type instead, or dictate with Wispr Flow.'}
 };
 function openSetup(){
-  hist=[];plan=null;asked=0;oberr.textContent='';setBusy(false);stopMic();
+  hist=[];plan=null;asked=0;seenOrder=[];oberr.textContent='';setBusy(false);stopMic();
   sums.style.display='none';ivs.style.display='flex';ob.classList.add('show');closeDrawer();closePane();
-  showQ(FIRST_Q,FIRST_HINT);
+  showQ(FIRST_Q,FIRST_HINT,1,'');
 }
-ivnext.onclick=next;
+ivnext.onclick=()=>next(false);
+document.getElementById('ivskip').onclick=()=>next(true);
 ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
-document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'Add anything missing, or tell me what to change.')};
+document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',7,'')};
 document.getElementById('restart').onclick=openSetup;
 document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn()};
 document.getElementById('obskip').onclick=()=>{stopMic();resetDemo();ob.classList.remove('show');bringIn()};
