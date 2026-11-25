@@ -654,7 +654,7 @@ const AREAS=[
  {id:'fitness',label:'Fitness',slot:2,kw:['gym','fit','fitness','marathon','run','running','workout','yoga','exercise','training','swim','swimming','sport','pilates','bike'],start:['Go for a 20 minute walk or run','Book your next class','Pack your gym bag']},
  {id:'health',label:'Health',slot:2,kw:['health','doctor','dentist','sleep','meds','medication','therapy','therapist','checkup','water'],start:['Book the appointment you keep postponing','Go to bed 30 minutes earlier tonight','Drink a glass of water now']},
  {id:'language',label:'Language',slot:3,kw:['french','spanish','german','italian','portuguese','japanese','language','duolingo','vocab','vocabulary','english'],start:['Do a 10 minute lesson','Watch something in that language','Review 20 flashcards']},
- {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','book'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
+ {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','novel'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
 ];
 function pixelCapy(){
   const W=36,H=28,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
@@ -702,16 +702,14 @@ const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
 const DEMO_LIST=[{name:'Work',tpl:'desk',lv:4,w:.95},{name:'Family',tpl:'living',lv:5,w:.8},{name:'Gym',tpl:'gym',lv:3,w:.15},{name:'French',tpl:'nook',lv:2,w:.3}];
 const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=document.getElementById('sums');
 const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
-const STEPS=['About you','Big goals','People and areas','In progress','This week','Every day','Putting off'];
+const STEPS=['About you','Big goals','People and areas','In progress','This week'];
 const FIRST_Q="What's your name, and what fills most of your weekdays?";
 const FIRST_HINT='One or two sentences is plenty. Like: "I\'m Ana, a nurse on night shifts" or "I\'m Leo, finishing my master\'s and working part-time."';
 const FB_QS=[
   [2,'If the next 12 months went really well, what would be different?','Name 2 or 3 things. Like: "I finished my thesis, I can run 10k, I feel calmer about money."'],
   [3,'Besides that, who and what needs your attention most weeks?','People (partner, parents, kids, friends), your health, your home, money, a side project.'],
   [4,"What are you in the middle of right now?",'Projects, applications, a class, a move. Just name them, even if you have no idea what comes next. Figuring out the steps is my job.'],
-  [5,'What has to happen in the next 7 days?','Deadlines, bills, appointments, replies you owe someone. "I need to..." works great.'],
-  [6,'What small things do you wish you did every day or every week?','Like: take my meds, drink water, laundry on Sundays, call mom, 10 minutes of French.'],
-  [7,"What's one thing you've been avoiding for a while?","It can be tiny. The email you haven't opened, the dentist, the closet. No judgment."]];
+  [5,'What has to happen in the next 7 days?','Deadlines, bills, appointments, replies you owe someone. "I need to..." works great.']];
 let hist=[],plan=null,offline=false,busy=false,asked=0,curStep=1,aiErr='';
 let seenOrder=[];
 function showSoFar(){
@@ -721,8 +719,8 @@ function showSoFar(){
   el.innerHTML=names.length?'<span class="sl">Rooms so far</span>'+names.map(n=>`<span class="sc">${esc(String(n))}</span>`).join(''):'';
 }
 function showQ(q,hint,step,ack){
-  curStep=Math.max(1,Math.min(7,Math.round(step||curStep)));
-  document.getElementById('ivn').textContent=`Step ${curStep} of 7 · ${STEPS[curStep-1]}`;
+  curStep=Math.max(1,Math.min(STEPS.length,Math.round(step||curStep)));
+  document.getElementById('ivn').textContent=`Step ${curStep} of ${STEPS.length} · ${STEPS[curStep-1]}`;
   document.getElementById('ivack').textContent=ack||'';
   document.getElementById('obt').textContent=q;document.getElementById('ivhint').textContent=hint||'';
   document.getElementById('ivskip').style.visibility=asked===0?'hidden':'visible';
@@ -820,7 +818,7 @@ function openSetup(){
 ivnext.onclick=()=>next(false);
 document.getElementById('ivskip').onclick=()=>next(true);
 ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
-document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',7,'')};
+document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',5,'')};
 document.getElementById('restart').onclick=openSetup;
 document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn()};
 document.getElementById('obskip').onclick=()=>{stopMic();resetDemo();ob.classList.remove('show');bringIn()};
