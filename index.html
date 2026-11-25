@@ -86,15 +86,24 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .ivstat{color:var(--muted);font-size:15px}
 .cbtn:disabled{opacity:.5;cursor:wait}
 .sumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;flex:1;align-content:start}
-.scard{background:#262a3d;border:3px solid #3a3e58;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.scard h3{margin:0;font-size:20px;font-weight:600}
-.scard .kind{font-size:13px;color:var(--muted)}
-.scard ul{margin:0;padding-left:18px;font-size:15px;line-height:1.4;color:#e2dacd;display:flex;flex-direction:column;gap:4px}
+.scard{font:inherit;text-align:left;color:var(--ink);cursor:pointer;background:#262a3d;border:3px solid var(--acc);box-shadow:0 5px 0 #a07a2a;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.scard[aria-pressed="false"]{border:3px dashed #3a3e58;box-shadow:none;opacity:.55}
+.scard:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.scard .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.scard .nm{font-size:20px;font-weight:600}
+.scard .tick{flex:none;width:22px;height:22px;border:3px solid var(--acc);background:var(--acc);color:#3a2a10;font-size:15px;display:flex;align-items:center;justify-content:center;line-height:1}
+.scard[aria-pressed="false"] .tick{background:none;border-color:#5a5f80;color:transparent}
+.scard .why{font-size:14px;color:var(--muted)}
+.scard .tds{margin:0;padding-left:18px;font-size:15px;line-height:1.4;color:#e2dacd;display:flex;flex-direction:column;gap:4px}
+.scard .td{display:list-item}
+.goals{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.goals .gl{font-size:14px;color:var(--muted);margin-right:4px}
+.goals span.g{font-size:15px;padding:5px 10px;background:#2e3049;border:2px solid #5d6288}
 @media (prefers-reduced-motion:reduce){.mic[aria-pressed="true"] .micdot{animation:none}}
 .obhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
 .obhead>div:first-child{display:flex;flex-direction:column;gap:12px;min-width:0}
 .obcapy{flex:none;width:clamp(96px,14vw,170px)}
-.obcapy svg{width:100%;height:auto;display:block}
+.obcapy svg,.obcapy canvas{width:100%;height:auto;display:block;image-rendering:pixelated}
 .steps{display:flex;gap:8px}
 .steps i{width:clamp(28px,5vw,48px);height:8px;background:#3a3e58}
 .steps i.on{background:var(--acc)}
@@ -176,8 +185,9 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
   </div>
   <div class="obc" id="sums" style="display:none">
     <div class="ivtop"><span class="ivn">Your house is ready</span><button class="oblink" id="restart">Start over</button></div>
-    <h2>Here are your rooms</h2>
-    <p class="lead" id="sumlead">Each part of your life is a room, with your to-dos inside.</p>
+    <h2>Pick your rooms</h2>
+    <p class="lead" id="sumlead">I suggested these from what you told me. Tap a room to keep it or leave it out.</p>
+    <div class="goals" id="goals"></div>
     <div class="sumgrid" id="sumgrid"></div>
     <div class="obrow"><button class="oblink" id="sumback">Keep talking</button><button class="cbtn" id="obgo">Build my house</button></div>
   </div>
@@ -633,12 +643,43 @@ const AREAS=[
  {id:'family',label:'Family',slot:1,kw:['family','mom','mum','mother','dad','father','sister','brother','parents','grandma','grandpa','kids','son','daughter','partner'],start:['Call someone in your family','Plan a family meal','Send a photo to the family chat']},
  {id:'friends',label:'Friends',slot:1,kw:['friend','friends','party','birthday','catch up','hang out','drinks'],start:['Text a friend you miss','Plan a coffee catch-up','Write down upcoming birthdays']},
  {id:'home',label:'Home',slot:1,kw:['home','clean','cleaning','laundry','dishes','apartment','flat','groceries','cook','cooking','fridge','plants'],start:['Do one load of laundry','Clear the kitchen counter','Make a grocery list']},
- {id:'fitness',label:'Fitness',slot:2,kw:['gym','run','running','workout','yoga','exercise','training','swim','swimming','sport','pilates','bike'],start:['Go for a 20 minute walk or run','Book your next class','Pack your gym bag']},
+ {id:'fitness',label:'Fitness',slot:2,kw:['gym','fit','fitness','marathon','run','running','workout','yoga','exercise','training','swim','swimming','sport','pilates','bike'],start:['Go for a 20 minute walk or run','Book your next class','Pack your gym bag']},
  {id:'health',label:'Health',slot:2,kw:['health','doctor','dentist','sleep','meds','medication','therapy','therapist','checkup','water'],start:['Book the appointment you keep postponing','Go to bed 30 minutes earlier tonight','Drink a glass of water now']},
  {id:'language',label:'Language',slot:3,kw:['french','spanish','german','italian','portuguese','japanese','language','duolingo','vocab','vocabulary','english'],start:['Do a 10 minute lesson','Watch something in that language','Review 20 flashcards']},
  {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','book'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
 ];
-document.getElementById('obcapy').innerHTML=capySVG({open:true,orange:true,id:'ob'});
+function pixelCapy(){
+  const W=36,H=28,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const P={K:'#3b2417',B:'#c08552',L:'#d9a16c',D:'#a46c40',M:'#7d4a2c',E:'#b07444',F:'#8f5634',f:'#7a4628',R:'#f08a7a',W:'#ffffff',O:'#f5a03d',Q:'#d9822a',H:'#ffd08a',G:'#6cb552'};
+  const inE=(x,y,cx,cy,rx,ry)=>((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1;
+  const S=[...Array(H)].map(()=>Array(W).fill(null));
+  const solid=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&S[y][x]!==null;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const body=inE(x,y,21,14.5,12.5,8.5),head=inE(x,y,10.5,12.5,8.5,6.5),snout=inE(x,y,6,13,5,4.6);
+    const nearLeg=y>=19&&y<=25&&((x>=11&&x<=14)||(x>=26&&x<=30)),farLeg=y>=19&&y<=24&&((x>=16&&x<=18)||(x>=22&&x<=24));
+    let c=null;
+    if(farLeg)c=y>=23?'f':'D';
+    if(inE(x,y,14.5,6.2,1.7,1.7)||inE(x,y,17.6,6.8,2,2))c='E';
+    if(body||head||snout)c=(x<=7&&(head||snout))?'M':(y>=20?'D':'B');
+    if(nearLeg&&!(body||head))c=y>=24?'F':'B';
+    S[y][x]=c;
+  }
+  for(let y=1;y<H;y++)for(let x=0;x<W;x++)if(S[y][x]==='B'&&S[y-1][x]===null&&y<14&&x>8)S[y][x]='L';
+  S[7][17]='M';S[7][18]='M';
+  for(let y=0;y<9;y++)for(let x=6;x<17;x++){const d=Math.hypot(x+.5-11.5,y+.5-4.2);if(d<=3.1)S[y][x]=d>2.2?'K':(x>12&&y>4?'Q':'O')}
+  S[3][10]='H';S[2][11]='H';S[1][14]='G';S[1][15]='G';S[0][15]='G';S[0][16]='G';
+  const out=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(S[y][x]===null&&(solid(x-1,y)||solid(x+1,y)||solid(x,y-1)||solid(x,y+1)))out.push([x,y]);
+  out.forEach(([x,y])=>S[y][x]='K');
+  for(let x=15;x<=16;x++)for(let y=23;y<=25;y++)if(S[y][x]===null||S[y][x]==='f')S[y][x]=S[y][x]||null;
+  S[10][12]='K';S[10][13]='W';S[11][12]='K';S[11][13]='K';
+  S[11][4]='K';S[16][5]='K';S[16][6]='K';
+  S[13][15]='R';S[13][16]='R';S[14][15]='R';
+  g.fillStyle='rgba(0,0,0,.18)';g.fillRect(9,26,23,2);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=S[y][x];if(c){g.fillStyle=P[c];g.fillRect(x,y,1,1)}}
+  cv.setAttribute('role','img');cv.setAttribute('aria-label','Pixel-art capybara with an orange on its head');
+  return cv;
+}
+document.getElementById('obcapy').appendChild(pixelCapy());
 const A=id=>AREAS.find(a=>a.id===id);
 function extract(text){
   const out=[],re=/\b(?:i\s+(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to|i'?d\s+like\s+to|remind\s+me\s+to|don'?t\s+forget\s+to|i\s+keep\s+(?:forgetting|putting\s+off)(?:\s+to)?|todo:?)\s+([^.!?\n;]+)/gi;let m;
@@ -655,8 +696,11 @@ const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=d
 const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
 const FIRST_Q='First, tell me who you are.',FIRST_HINT='Your name, what you do, what your days look like. Talk or type, as much as you like.';
 const FB_QS=[
-  ['What are the main things in your life right now?','Work, people, health, hobbies, anything that takes up space in your head.'],
-  ["What's on your plate this week?",'Anything you need to do, big or small. "I need to..." works great.'],
+  ['What are your big goals right now?','This year or even bigger. Career, health, people, anything you dream about.'],
+  ['Which parts of your life take up the most space?','Work, study, family, friends, health, home, money, hobbies...'],
+  ['What are you working on in those areas right now?','Projects, classes, plans, commitments.'],
+  ["What's on your plate this week?",'Deadlines and to-dos, big or small. "I need to..." works great.'],
+  ['What everyday things do you want to keep up with?','Habits, routines, chores. Like drinking water, laundry, calling home.'],
   ["What have you been putting off?",'No judgment. Naming it is the first step.']];
 let hist=[],plan=null,offline=false,busy=false,asked=0;
 function showQ(q,hint){
@@ -680,7 +724,9 @@ function fallbackPlan(){
   for(const task of extract(all)){const tt=' '+task.toLowerCase()+' ';let best=areas[0],bs=0;
     for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
     (tasks[best.id]=tasks[best.id]||[]).push(task)}
-  return{rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],todos:(tasks[a.id]||[]).concat(a.start).slice(0,6)})),message:''};
+  const gAns=(hist.find((m,i)=>m.role==='user'&&hist[i-1]&&hist[i-1].content===FB_QS[0][0])||{}).content||'';
+  const goals=gAns.split(/[.;\n]|,\s*|\s+and\s+(?=i\s)/i).map(s=>s.replace(/^\s*(?:and|also|i\s+want\s+to|i'?d\s+like\s+to|my\s+goal\s+is\s+to|to)\s+/i,'').trim()).filter(s=>s.split(' ').length>=2&&s.length<=60).slice(0,6).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
+  return{goals,rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:(tasks[a.id]||[]).concat(a.start).slice(0,7)})),message:''};
 }
 async function next(){
   if(busy)return;const text=ivta.value.trim();
@@ -690,8 +736,8 @@ async function next(){
   if(!offline){
     setBusy(true,'Thinking...');
     try{
-      const j=await askAI(asked>=8);setBusy(false);
-      if(Array.isArray(j.rooms)&&j.rooms.length)plan={rooms:j.rooms,message:j.message||''};
+      const j=await askAI(asked>=10);setBusy(false);
+      if(Array.isArray(j.rooms)&&j.rooms.length)plan={rooms:j.rooms,goals:Array.isArray(j.goals)?j.goals:[],message:j.message||''};
       if(j.done&&plan){showSummary();return}
       hist.push({role:'assistant',content:j.question});showQ(j.question,j.hint||'');return;
     }catch(e){setBusy(false);offline=true}
@@ -700,30 +746,48 @@ async function next(){
   plan=fallbackPlan();showSummary();
 }
 function uniq(list){const seen={};return list.map(r=>{let n=String(r.name||'Room').trim().slice(0,24)||'Room';const base=n;let k=2;while(seen[n.toLowerCase()])n=base+' '+k++;seen[n.toLowerCase()]=1;return Object.assign({},r,{name:n})})}
+let picked=[];
 function showSummary(){
-  plan.rooms=uniq(plan.rooms.slice(0,9));
-  document.getElementById('sumlead').textContent=plan.message||`${plan.rooms.length} rooms, one for each part of your life, with your to-dos inside.`;
-  document.getElementById('sumgrid').innerHTML=plan.rooms.map(r=>`<div class="scard"><h3>${esc(r.name)}</h3><span class="kind">${esc(KIND_LABEL[r.template]||'Room')}</span><ul>${(r.todos||[]).map(t=>`<li>${esc(String(t))}</li>`).join('')}</ul></div>`).join('');
-  ivs.style.display='none';sums.style.display='flex';document.getElementById('obgo').focus();
+  plan.rooms=uniq(plan.rooms.slice(0,9));picked=plan.rooms.map(()=>true);
+  document.getElementById('sumlead').textContent=(plan.message?plan.message+' ':'')+'Tap a room to keep it or leave it out.';
+  const gl=plan.goals||[];
+  document.getElementById('goals').innerHTML=gl.length?`<span class="gl">Your big goals</span>`+gl.map(g=>`<span class="g">${esc(String(g))}</span>`).join(''):'';
+  const grid=document.getElementById('sumgrid');
+  grid.innerHTML=plan.rooms.map((r,i)=>`<button class="scard" type="button" aria-pressed="true" data-i="${i}"><span class="top"><span class="nm">${esc(r.name)}</span><span class="tick" aria-hidden="true">✓</span></span><span class="why">${esc(r.why||KIND_LABEL[r.template]||'Room')}</span><span class="tds">${(r.todos||[]).map(t=>`<span class="td">${esc(String(t))}</span>`).join('')}</span></button>`).join('');
+  grid.querySelectorAll('.scard').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;picked[i]=!picked[i];b.setAttribute('aria-pressed',picked[i]);oberr2()});
+  oberr2();ivs.style.display='none';sums.style.display='flex';document.getElementById('obgo').focus();
 }
+function oberr2(){const n=picked.filter(Boolean).length,b=document.getElementById('obgo');b.textContent=n?`Build my house (${n} ${n===1?'room':'rooms'})`:'Pick at least one room';b.disabled=!n}
 function buildFromPlan(){
+  const keep=plan.rooms.filter((r,i)=>picked[i]);if(!keep.length)return false;
   for(const k in TODO)delete TODO[k];
-  setLayout(plan.rooms.map(r=>({name:r.name,tpl:(TPL[r.template]&&r.template!=='spare')?r.template:'desk',lv:2,w:.6})));
-  plan.rooms.forEach(r=>TODO[r.name]=(r.todos||[]).slice(0,8).map(t=>({t:String(t),done:false})));
+  setLayout(keep.map(r=>({name:r.name,tpl:(TPL[r.template]&&r.template!=='spare')?r.template:'desk',lv:2,w:.6})));
+  keep.forEach(r=>TODO[r.name]=(r.todos||[]).slice(0,8).map(t=>({t:String(t),done:false})));
+  return true;
 }
 function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);setLayout(DEMO_LIST)}
 function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=150}}))}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition,micBtn=document.getElementById('mic');let rec=null,micOn=false,micBase='';
 if(!SR)micBtn.style.display='none';
-function stopMic(){if(rec&&micOn){micOn=false;try{rec.stop()}catch(_){}}micBtn.setAttribute('aria-pressed','false');document.getElementById('miclbl').textContent='Talk'}
+const ivstat=document.getElementById('ivstat');let heard=false;
+function stopMic(){if(rec&&micOn){micOn=false;try{rec.stop()}catch(_){}}micBtn.setAttribute('aria-pressed','false');document.getElementById('miclbl').textContent='Talk';if(!busy)ivstat.textContent=''}
+const MIC_ERR={
+  'not-allowed':'Your browser blocked the microphone. Click the lock icon next to the address, allow the microphone, then try again.',
+  'service-not-allowed':'This browser doesn\'t allow speech-to-text here. Try Chrome or Edge, or dictate with Wispr Flow.',
+  'audio-capture':'No microphone was found. Check that one is connected and not used by another app.',
+  'network':'Speech-to-text needs an internet connection to Google\'s service, and it didn\'t respond. Try Chrome, or dictate with Wispr Flow.',
+  'language-not-supported':'Speech-to-text doesn\'t support your browser\'s language here. Try Chrome, or dictate with Wispr Flow.'};
 micBtn.onclick=()=>{
   if(micOn){stopMic();return}
+  oberr.textContent='';heard=false;
   rec=new SR();rec.lang=navigator.language||'en-US';rec.continuous=true;rec.interimResults=true;
   micBase=ivta.value?ivta.value.replace(/\s*$/,' '):'';
-  rec.onresult=e=>{let fin='',mid='';for(let i=0;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else mid+=t}ivta.value=micBase+fin+mid};
-  rec.onerror=e=>{oberr.textContent=e.error==='not-allowed'?'Microphone access is blocked. Allow it in your browser, or type instead.':'The microphone stopped. Try again, or type instead.';stopMic()};
+  rec.onstart=()=>{ivstat.textContent='Listening... speak now'};
+  rec.onresult=e=>{heard=true;ivstat.textContent='Listening...';let fin='',mid='';for(let i=0;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else mid+=t}ivta.value=micBase+fin+mid};
+  rec.onerror=e=>{if(e.error==='no-speech'||e.error==='aborted')return;oberr.textContent=MIC_ERR[e.error]||`The microphone stopped (${e.error}). Try again, or type instead.`;stopMic()};
   rec.onend=()=>{if(micOn){micBase=ivta.value?ivta.value.replace(/\s*$/,' '):'';try{rec.start()}catch(_){stopMic()}}};
-  try{rec.start();micOn=true;micBtn.setAttribute('aria-pressed','true');document.getElementById('miclbl').textContent='Stop'}catch(_){oberr.textContent='Could not start the microphone. Type instead.'}
+  try{rec.start();micOn=true;micBtn.setAttribute('aria-pressed','true');document.getElementById('miclbl').textContent='Stop';ivstat.textContent='Starting the microphone...'}
+  catch(_){oberr.textContent='Could not start the microphone. Type instead, or dictate with Wispr Flow.'}
 };
 function openSetup(){
   hist=[];plan=null;asked=0;oberr.textContent='';setBusy(false);stopMic();
@@ -734,7 +798,7 @@ ivnext.onclick=next;
 ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
 document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'Add anything missing, or tell me what to change.')};
 document.getElementById('restart').onclick=openSetup;
-document.getElementById('obgo').onclick=()=>{buildFromPlan();ob.classList.remove('show');bringIn()};
+document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn()};
 document.getElementById('obskip').onclick=()=>{stopMic();resetDemo();ob.classList.remove('show');bringIn()};
 document.getElementById('redo').onclick=openSetup;
 setLayout(DEMO_LIST);
