@@ -71,6 +71,26 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#3a2a10;box-shadow:0 5px 0 #a07a2a}
 .chip:disabled{opacity:.35;cursor:not-allowed}
 .chip:focus-visible,.obc button:focus-visible,.obc textarea:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.ivtop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ivn{font-size:15px;color:var(--acc);letter-spacing:.5px}
+.ivbox{position:relative;flex:1;min-height:180px;display:flex}
+.ivbox textarea{flex:1;min-width:0;font:inherit;font-size:clamp(18px,2vw,22px);line-height:1.45;resize:none;padding:18px 20px 64px;box-sizing:border-box;background:#14161f;color:var(--ink);border:3px solid #3a3e58}
+.ivbox textarea:focus{border-color:var(--acc);outline:none}
+.ivbox textarea:disabled{opacity:.6}
+.mic{position:absolute;right:14px;bottom:14px;font:inherit;font-size:16px;display:flex;align-items:center;gap:8px;padding:10px 16px;background:#262a3d;color:var(--ink);border:3px solid #3a3e58;cursor:pointer;box-shadow:0 4px 0 #11131d}
+.mic:hover{border-color:var(--acc)}
+.mic .micdot{width:12px;height:12px;background:#ff6f6f;border-radius:50%}
+.mic[aria-pressed="true"]{background:#ff6f6f;border-color:#ff6f6f;color:#2b1010}
+.mic[aria-pressed="true"] .micdot{background:#fff;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
+.ivstat{color:var(--muted);font-size:15px}
+.cbtn:disabled{opacity:.5;cursor:wait}
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;flex:1;align-content:start}
+.scard{background:#262a3d;border:3px solid #3a3e58;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.scard h3{margin:0;font-size:20px;font-weight:600}
+.scard .kind{font-size:13px;color:var(--muted)}
+.scard ul{margin:0;padding-left:18px;font-size:15px;line-height:1.4;color:#e2dacd;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.mic[aria-pressed="true"] .micdot{animation:none}}
 .obhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
 .obhead>div:first-child{display:flex;flex-direction:column;gap:12px;min-width:0}
 .obcapy{flex:none;width:clamp(96px,14vw,170px)}
@@ -145,47 +165,32 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
   <section><h3>Your house</h3><button class="redo" id="redo">Redo setup</button></section>
 </aside>
 <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obt">
-  <div class="obc step" id="s1">
-    <div class="steps" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-    <div class="obhead"><div><h2 id="obt">Let's build your house</h2>
-    <p class="lead">Each part of your life becomes a room. Which ones do you want to look after?</p></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
-    <div class="q"><div class="ql"><span class="qh" id="cnt">Pick up to 4</span></div><div class="chips" id="qa"></div></div>
-    <div class="oberr" id="oberr" role="alert"></div>
-    <div class="obrow"><button class="oblink" id="obskip">Skip, show me the demo house</button><button class="cbtn" data-go="2">Next</button></div>
+  <div class="obc" id="ivs">
+    <div class="ivtop"><span class="ivn" id="ivn">Let's build your house</span><button class="oblink" id="obskip">Skip, show me the demo house</button></div>
+    <div class="obhead"><div><h2 id="obt">First, tell me who you are.</h2>
+    <p class="lead" id="ivhint">Your name, what you do, what your days look like. Talk or type, as much as you like.</p></div><div class="obcapy" id="obcapy" aria-hidden="true"></div></div>
+    <div class="ivbox"><textarea id="ivta" aria-labelledby="obt" placeholder="I'm..."></textarea>
+      <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Talk instead of typing"><span class="micdot"></span><span id="miclbl">Talk</span></button></div>
+    <div class="oberr" id="oberr" role="alert" aria-live="polite"></div>
+    <div class="obrow"><span class="ivstat" id="ivstat"></span><button class="cbtn" id="ivnext">Next</button></div>
   </div>
-  <div class="obc step" id="s2" style="display:none">
-    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i></div>
-    <h2>What gets in your way the most?</h2>
-    <p class="lead">So the house knows how to help.</p>
-    <div class="chips big" id="qb"></div>
-    <div class="obrow"><button class="oblink" data-go="1">Back</button><button class="oblink" data-go="3">Skip</button></div>
-  </div>
-  <div class="obc step" id="s3" style="display:none">
-    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
-    <h2>How often should the house check in?</h2>
-    <p class="lead">You can change this later.</p>
-    <div class="chips big" id="qc"></div>
-    <div class="obrow"><button class="oblink" data-go="2">Back</button><button class="oblink" data-go="4">Skip</button></div>
-  </div>
-  <div class="obc step" id="s4" style="display:none">
-    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
-    <h2>Tell me about your life</h2>
-    <p class="lead">Write like you'd text a friend. Anything you need to do becomes a to-do in the right room.</p>
-    <div class="chat" id="chat" aria-live="polite"></div>
-    <div class="compose"><textarea id="ta" placeholder="I need to call my sister and I keep skipping the gym..." aria-label="Message"></textarea><button class="sbtn" id="send">Send</button></div>
-    <div class="note">This helper runs in your browser and looks for things like "I need to...". It isn't a full AI yet.</div>
-    <div class="preview" id="pv"></div>
-    <div class="obrow"><button class="oblink" data-go="3">Back</button><button class="cbtn" id="obgo">Build my house</button></div>
+  <div class="obc" id="sums" style="display:none">
+    <div class="ivtop"><span class="ivn">Your house is ready</span><button class="oblink" id="restart">Start over</button></div>
+    <h2>Here are your rooms</h2>
+    <p class="lead" id="sumlead">Each part of your life is a room, with your to-dos inside.</p>
+    <div class="sumgrid" id="sumgrid"></div>
+    <div class="obrow"><button class="oblink" id="sumback">Keep talking</button><button class="cbtn" id="obgo">Build my house</button></div>
   </div>
 </div>
 <div class="pane" id="pane"><button class="x" id="px" aria-label="Close">x</button><h2><span id="pn"></span><span class="tag" id="pt"></span></h2><p id="pd"></p><ul id="pl"></ul></div>
 <script>
-const WH=62,PH=12,RS=88,GAP=92,HS=180;
+const WH=62,PH=12,RS=88,GAP=92;
+let COLS=2,ROWS=2,HSX=180,HSY=180,GRID=[];
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let CW,CH,OX,OY,IMG,D,N,cR,cG,cB,pX,pY,pZ,dep,nrm,emi,edge,oid,rid,outd;
 function setup(){
-  const sc=Math.max(1.5,Math.min(innerWidth/440,innerHeight/310));
-  CW=Math.ceil(innerWidth/sc);CH=Math.ceil(innerHeight/sc);OX=Math.round(CW/2);OY=Math.round(CH/2-58);
+  const span=HSX+HSY,sc=Math.max(1.2,Math.min(innerWidth/(span+80),innerHeight/(span/2+150)));
+  CW=Math.ceil(innerWidth/sc);CH=Math.ceil(innerHeight/sc);OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(CH/2-(span/2-47)/2);
   cv.width=CW;cv.height=CH;IMG=ctx.createImageData(CW,CH);D=IMG.data;N=CW*CH;
   cR=new Float32Array(N);cG=new Float32Array(N);cB=new Float32Array(N);pX=new Float32Array(N);pY=new Float32Array(N);pZ=new Float32Array(N);dep=new Float32Array(N);
   nrm=new Uint8Array(N);emi=new Uint8Array(N);edge=new Uint8Array(N);oid=new Int16Array(N);rid=new Int8Array(N);outd=new Uint8Array(N);
@@ -197,7 +202,8 @@ const RGB={};function rgb(h){let v=RGB[h];if(!v){const n=parseInt(h.slice(1),16)
 const SHC={};function shade(h,f){const k=h+f;if(SHC[k])return SHC[k];const c=rgb(h).map(x=>Math.max(0,Math.min(255,Math.round(x*f))));return SHC[k]='#'+c.map(x=>x.toString(16).padStart(2,'0')).join('')}
 function hash(n){const s=Math.sin(n*12.9898+78.233)*43758.5453;return s-Math.floor(s)}
 function B(x,y,z,w,d,h,c,tex,o){return Object.assign({x,y,z,w,d,h,c,tex},o||{})}
-function roomAt(X,Y){if(X<-.01||Y<-.01||X>HS+.01||Y>HS+.01)return -1;return (Y<90?0:2)+(X<90?0:1)}
+function roomAt(X,Y){if(X<-.01||Y<-.01||X>HSX+.01||Y>HSY+.01)return -1;const gx=Math.min(COLS-1,Math.floor((X+2)/GAP)),gy=Math.min(ROWS-1,Math.floor((Y+2)/GAP));const r=GRID[gy*COLS+gx];return r===undefined?-1:r}
+const inGap=v=>v>0&&(v%GAP)>RS;
 const WOOD='#9a6240',WOODL='#b98353',WOODD='#6b3f28',INK='#2f2a3d',CAP='#ebdfcf',CUT='#2c2a3d';
 
 function raster(b,id,dz){
@@ -225,14 +231,9 @@ const T_WORK={wall:'#dfe5cf',wall2:'#d2dabf',pat:'stripe',wain:'#93a77c',trim:'#
 const T_FAM={wall:'#f4dfd4',wall2:'#ead0c2',pat:'dots',wain:'#d39a8a',trim:'#fff4ea',base:'#8e5a50',floor:'#a8704a',curt:'#c96b7a'};
 const T_GYM={wall:'#d6e6ee',wall2:'#c3d8e4',pat:'dots',wain:'#7fa6bd',trim:'#f2f5f5',base:'#46657c',floor:'#c39463',curt:'#5a8fd1'};
 const T_FR={wall:'#e4dcef',wall2:'#d6cbe7',pat:'stripe',wain:'#a593c4',trim:'#f7f2fb',base:'#5e4e80',floor:'#9c6a46',curt:'#d9a441'};
-const TH=[T_WORK,T_FAM,T_GYM,T_FR];
-
-const WINS=[
-  {room:0,pl:'X',a0:34,a1:58,z0:24,z1:48},
-  {room:2,pl:'X',a0:GAP+34,a1:GAP+58,z0:24,z1:48},
-  {room:1,pl:'Y',a0:GAP+50,a1:GAP+74,z0:24,z1:48},
-];
-WINS.forEach(w=>{w.am=(w.a0+w.a1)/2;w.zm=(w.z0+w.z1)/2});
+const T_SPARE={wall:'#ece4d8',wall2:'#e2d8ca',pat:'stripe',wain:'#bfae98',trim:'#f7f1e8',base:'#7d6c5a',floor:'#a77b55',curt:'#9fb88a'};
+const themeOf=ri=>{const r=rooms[ri];return r?TPL[r.tpl].T:T_SPARE};
+let WINS=[];
 
 function glass(w,h,Z){
   const inG=h>w.a0&&h<w.a1&&Z>w.z0&&Z<w.z1&&Math.abs(h-w.am)>.8&&Math.abs(Z-w.zm)>.8;
@@ -255,22 +256,22 @@ function wallTex(side){return(f,u,v,X,Y,Z)=>{
   if(f===0)return CAP;
   if((side==='L'&&f===1)||(side==='R'&&f===2))return Z>WH-2?CAP:CUT;
   const h=side==='L'?Y:X;
-  if(h>88&&h<92)return Z<2.4?'#4a3f3a':(Math.abs(h-90)<.7?'#d9cdbd':'#f2ebe0');
+  if(inGap(h))return Z<2.4?'#4a3f3a':(Math.abs(h%GAP-90)<.7?'#d9cdbd':'#f2ebe0');
   for(const w of WINS)if(w.pl===(side==='L'?'X':'Y')&&h>w.a0-1.8&&h<w.a1+1.8&&Z>w.z0-1.8&&Z<w.z1+1.8)return glass(w,h,Z);
-  const T=side==='L'?(Y<90?T_WORK:T_GYM):(X<90?T_WORK:T_FAM);
+  const T=themeOf(side==='L'?roomAt(.5,Y):roomAt(X,.5));
   return wallBody(T,h,Z);
 }}
 function partTex(axis){return(f,u,v,X,Y,Z)=>{
   if(f===0)return '#f4efe6';
   const face=axis==='X'?2:1;
   if(f!==face)return '#b9a894';
-  const T=TH[axis==='X'?roomAt(92,Y):roomAt(X,92)]||T_WORK,h=axis==='X'?Y:X;
+  const T=themeOf(axis==='X'?roomAt(X+1,Y):roomAt(X,Y+1)),h=axis==='X'?Y:X;
   if(Z<2.4)return T.base;if(Z>PH-1.6)return T.trim;return (h%9<1)?shade(T.wain,.82):T.wain;
 }}
 function floorTex(){return(f,u,v,X,Y,Z)=>{
   if(f!==0){if(Z>-1.2)return '#c9bba8';const row=Math.floor((Z+6)/2.4),h=(f===1?X:Y)+row*3;return (Z+6)%2.4<.7||h%6<.7?'#6d6560':(hash(Math.floor(h/6)+row*13)<.5?'#a49a8c':'#958b7e')}
-  const r=roomAt(X,Y);if(r<0||(X>88&&X<92)||(Y>88&&Y<92))return '#8a6a50';
-  const T=TH[r],f1=T.floor,dk=shade(f1,.72);
+  const r=roomAt(X,Y);if(r<0||inGap(X)||inGap(Y))return '#8a6a50';
+  const T=themeOf(r),f1=T.floor,dk=shade(f1,.72);
   const bi=Math.floor(Y/6),sv=Y-bi*6;if(sv<.9)return dk;
   const off=hash(bi)*30,uu=X+off,seg=Math.floor(uu/26),su=uu-seg*26;if(su<1)return dk;
   if(hash(Math.floor(uu*.9)*3+bi*91)<.06)return shade(f1,.86);
@@ -343,12 +344,12 @@ const WORK=[
    B(57,8,17,2.4,2.4,2.6,'#e46a5a'),
    B(35.5,3.5,17,3,3,.8,INK),B(36.5,4.5,17.8,1,1,7,INK),B(35,3,24.5,4,4,3,'#ffcf6b',null,{emit:1})],
   L:[{x:48,y:8,z:25,r:26,c:[.45,.7,1],i:.6},{x:37,y:5,z:24,r:28,c:[1,.8,.5],i:.85}]},
- {n:'Bookshelf',b:()=>[B(.5,66,0,9,19,46,WOOD,booksTex(2,19,46,WOOD,11)),...plant(2,69,46,.55,3,'#e8e0d2'),B(2,78,46,6,5,2,'#3f6fb5'),B(2.5,78.5,48,5,4,1.6,'#e0b44c')]},
+ {n:'Bookshelf',need:'L',b:()=>[B(.5,66,0,9,19,46,WOOD,booksTex(2,19,46,WOOD,11)),...plant(2,69,46,.55,3,'#e8e0d2'),B(2,78,46,6,5,2,'#3f6fb5'),B(2.5,78.5,48,5,4,1.6,'#e0b44c')]},
  {n:'Plant and rug',b:()=>[rug(20,26,44,38,'#6f8fb0','#3f5878','#e9dcc0'),...plant(3,3,0,1.5,7,'#e8e0d2')]},
- {n:'Corkboard and poster',b:()=>[
+ {n:'Corkboard and poster',need:'R',b:()=>[
    B(36,.2,34,16,1,12,'#c8955b',frameTex(1,16,12,WOODD,(u,v)=>{const N=[[1,5,4,4,'#ffe27a'],[6,1.5,4,4,'#ff9fb6'],[10,5,3.6,4,'#a8e4ff'],[2,.6,3,3,'#ffffff'],[9.5,.6,4,3,'#c6f0a8']];for(const n of N)if(u>n[0]&&u<n[0]+n[2]&&v>n[1]&&v<n[1]+n[3])return (v>n[1]+n[3]-1&&Math.abs(u-n[0]-n[2]/2)<.6)?'#e05a4f':n[4];return hash(Math.floor(u)*17+Math.floor(v))<.2?'#b07f4a':'#c8955b'})),
    B(56,.2,30,11,1,15,'#2f2a3d',frameTex(1,11,15,'#2f2a3d',(u,v)=>{if(Math.hypot(u-6,v-9.5)<2)return '#f08a5a';if(v<6-Math.abs(u-3)*1.1)return '#5b7fa6';if(v<4.5-Math.abs(u-7)*.9)return '#3f5f86';return v>7?'#f6d6a8':'#f9e4c4'}))]},
- {n:'Fairy lights',fx:()=>fairy(13,3,84,57)},
+ {n:'Fairy lights',need:'R',fx:()=>fairy(13,3,84,57)},
 ];
 const FAM=[
  {n:'Sofa',b:()=>{const S='#d9895f',SL='#eaa478',SD='#b56a48';return[B(6,40,2,34,14,7,SD),...legs4(6.6,40.6,0,33,13,2,WOODD),B(6,50,9,34,4,11,S),B(6,40,9,3.2,14,6,S),B(36.8,40,9,3.2,14,6,S),B(9.2,41,9,13.8,9,3,SL),B(23,41,9,13.8,9,3,SL),B(11,46.6,12,7,3,7,'#f2e2c4'),B(28,46.6,12,7,3,7,'#7aa7c7',(f,u,v)=>((u+v)%3<1)?'#6593b5':null)]}},
@@ -356,7 +357,7 @@ const FAM=[
  {n:'TV corner',b:()=>[B(6,1,0,30,9,11,WOOD,(f,u,v)=>f===1?((u%15<.9)?WOODD:(Math.abs(u%15-7.5)>5.4&&Math.abs(u%15-7.5)<6.4&&v>4.6&&v<6.6?'#e6c27a':null)):(f===0?WOODL:null)),
    B(12,2.5,13,18,1.6,12,'#2a2734',screenTex(1,18,12,'show')),B(19.5,3,11,3,2,2,'#2a2734'),B(7,3,11,3,3,5,'#3a3346'),B(32,3,11,3,3,5,'#3a3346')],
   L:[{x:21,y:9,z:18,r:26,c:[.5,.75,1],i:.55}]},
- {n:'Photo wall',b:()=>{const F=[[6,32,7,9,'#f7d6a8','#d48f6a','#5b7fc4'],[15,35,9,7,'#cfe8f5','#f0c49a','#e05a4f'],[26,31,7,10,'#e2d6f2','#c98a62','#5a9b6a'],[34.5,34,6,8,'#fbe6b0','#eebd94','#8a5aa8']];
+ {n:'Photo wall',need:'R',b:()=>{const F=[[6,32,7,9,'#f7d6a8','#d48f6a','#5b7fc4'],[15,35,9,7,'#cfe8f5','#f0c49a','#e05a4f'],[26,31,7,10,'#e2d6f2','#c98a62','#5a9b6a'],[34.5,34,6,8,'#fbe6b0','#eebd94','#8a5aa8']];
    return F.map(p=>B(p[0],.2,p[1],p[2],1,p[3],WOODD,frameTex(1,p[2],p[3],WOODD,(u,v,w,h)=>{if(Math.hypot(u-w/2,(v-h*.6)*1.05)<w*.2)return p[5];if(v<h*.38&&Math.abs(u-w/2)<w*.34)return p[6];return p[4]})))}},
  {n:'Floor lamp',fx:()=>floorLamp(44,46,38,'#ffd98a')},
  {n:'Cat and plant',b:()=>{const C='#e8a056',CS='#c97f3a';return[B(12,42,12,7,4.4,3,C,(f,u)=>u%2.4<.8?CS:null),B(18,42,12,4,4,4,C,(f,u,v)=>f===2&&v>1.6&&v<2.6&&(Math.abs(u-1)<.5||Math.abs(u-3)<.5)?'#2f2a3d':null),B(18.4,42.4,16,1.2,1.2,1.4,C),B(20.4,42.4,16,1.2,1.2,1.4,C),B(10.6,43,12,2,1.4,1.2,CS),...plant(78,3,0,1.4,9)]}},
@@ -365,8 +366,8 @@ const GYM=[
  {n:'Yoga mat',b:()=>[B(24,34,0,36,12,.7,'#8f7bd6',(f,u,v)=>f!==0?'#6f5bb6':(u<2.2||u>33.8?'#6f5bb6':(v%4<.8?'#9d8ae0':null)),{flat:1}),B(28,50,0,9,3.2,2.6,'#f2f2ee',(f,u)=>u%3<1?'#5ab0e6':null),B(62,50,0,2.2,2.2,6,'#5ab0e6',(f,u,v)=>v>4.8?'#2f2a3d':null)]},
  {n:'Dumbbell rack',b:()=>{const o=[B(40,1,0,2,9,14,INK),B(63,1,0,2,9,14,INK),B(40,1,5,25,9,1,'#5a5a6a'),B(40,1,11,25,9,1,'#5a5a6a')];const C=['#e05a4f','#3f6fb5','#e0b44c','#5a9b6a'];
    for(let i=0;i<4;i++){const x=43+i*5;o.push(B(x,2,6,3,1.8,3.4,C[i]),B(x+1,3.8,7,1,3.4,1,'#c4c4d0'),B(x,7.2,6,3,1.8,3.4,C[i]));if(i<3){const x2=44+i*6;o.push(B(x2,2.5,12,2.4,1.4,2.4,'#3a3a46'),B(x2+.7,3.9,12.7,1,3.2,1,'#c4c4d0'),B(x2,7.1,12,2.4,1.4,2.4,'#3a3a46'))}}return o}},
- {n:'Big mirror',b:()=>[B(.2,2,6,1,21,44,'#ece6da',frameTex(2,21,44,'#ece6da',(u,v)=>((u+v*.6)%17<2.4||(u+v*.6)%17>3.6&&(u+v*.6)%17<4.4)?'#eef8fb':(v<12?'#a9cde0':'#b9d9e8')))]},
- {n:'Punching bag',b:()=>[B(0,71,54,13,2,2,INK),B(10.4,71.5,46,1,1,8,'#8a8a96'),B(7,68.5,20,7,7,26,'#d8574a',(f,u,v)=>(v>2&&v<3.6)||(v>21.5&&v<23.1)?'#2f2a3d':(f===0?'#2f2a3d':(u<1.4?'#e8786a':null)))]},
+ {n:'Big mirror',need:'L',b:()=>[B(.2,2,6,1,21,44,'#ece6da',frameTex(2,21,44,'#ece6da',(u,v)=>((u+v*.6)%17<2.4||(u+v*.6)%17>3.6&&(u+v*.6)%17<4.4)?'#eef8fb':(v<12?'#a9cde0':'#b9d9e8')))]},
+ {n:'Punching bag',need:'L',b:()=>[B(0,71,54,13,2,2,INK),B(10.4,71.5,46,1,1,8,'#8a8a96'),B(7,68.5,20,7,7,26,'#d8574a',(f,u,v)=>(v>2&&v<3.6)||(v>21.5&&v<23.1)?'#2f2a3d':(f===0?'#2f2a3d':(u<1.4?'#e8786a':null)))]},
  {n:'Kettlebells and plant',b:()=>[B(70,10,0,4,4,3.4,INK),B(70.8,10.8,3.4,2.4,2.4,1.6,INK,(f,u)=>(u>.6&&u<1.8)?'#11131d':null),B(76,10,0,4,4,3.4,'#e0b44c'),B(76.8,10.8,3.4,2.4,2.4,1.6,'#e0b44c'),...plant(76,74,0,1.3,3,'#f2f2ee')]},
  {n:'Lamp and bench',fx:()=>{const l=floorLamp(80,24,40,'#ffd98a');l.b.push(...legs4(42,60,0,22,7,5,INK),B(42,60,5,22,7,1.4,'#3a3346'),B(42.6,60.6,6.4,20.8,5.8,1.6,'#5ab0e6'));return l}},
 ];
@@ -390,35 +391,58 @@ GYM.push(
 FR.push(
  {n:'Globe',b:()=>[B(62,62,0,4,4,1,WOODD),B(63.4,63.4,1,1.2,1.2,7,WOODD),B(61,61,8,6,6,6,'#3f8fd6',(f,u,v)=>hash(Math.floor(u*1.3)*11+Math.floor(v*1.3)*7+f)<.38?'#5aa850':null)]},
  {n:'Golden Eiffel',b:()=>[B(77,40,0,7,7,6,'#f2f2ee',(f,u,v)=>f!==0&&v>4.6?'#d9d0c4':null),B(78,41,6,5,5,2.4,'#ffd35c'),B(78.8,41.8,8.4,3.4,3.4,4,'#ffd35c',(f,u)=>u<.8?'#fff0b0':'#e0b44c'),B(79.6,42.6,12.4,1.8,1.8,4,'#ffd35c'),B(80.1,43.1,16.4,.8,.8,3,'#ffd35c')],L:[{x:80.5,y:43.5,z:12,r:12,c:[1,.85,.4],i:.35}]});
-const RAR={Work:['c','c','c','c','r','e','c','r'],Family:['c','c','c','c','c','e','c','r'],Gym:['c','c','c','r','c','c','c','e'],French:['c','c','c','r','r','c','r','e']};
-
-const rooms=[
- {name:'Work',gx:0,gy:0,items:WORK,lv:4,xp:1,w:.95},
- {name:'Family',gx:1,gy:0,items:FAM,lv:5,xp:0,w:.8},
- {name:'Gym',gx:0,gy:1,items:GYM,lv:3,xp:2,w:.15},
- {name:'French',gx:1,gy:1,items:FR,lv:2,xp:1,w:.3},
-];
-rooms.forEach(r=>{r.dw=r.w;r.ox=r.gx*GAP;r.oy=r.gy*GAP;
-  r.items.forEach((it,k)=>{it.rar=RAR[r.name][k]||'c';it.own=k<r.lv;const o=it.fx?it.fx():{b:it.b(),L:it.L||[]};it.boxes=o.b.map(b=>Object.assign(b,{x:b.x+r.ox,y:b.y+r.oy}));it.L=(o.L||[]).map(l=>Object.assign({},l,{x:l.x+r.ox,y:l.y+r.oy}))})});
-
-const SHELL=(()=>{const S=[];
+const TPL={
+  desk:{T:T_WORK,items:WORK,rar:['c','c','c','c','r','e','c','r'],winL:[34,58],winR:null,start:4},
+  living:{T:T_FAM,items:FAM,rar:['c','c','c','c','c','e','c','r'],winL:[34,58],winR:[50,74],start:4},
+  gym:{T:T_GYM,items:GYM,rar:['c','c','c','r','c','c','c','e'],winL:[34,58],winR:null,start:3},
+  nook:{T:T_FR,items:FR,rar:['c','c','c','r','r','c','r','e'],winL:[34,58],winR:[54,78],start:3},
+  spare:{T:T_SPARE,items:[],rar:[],winL:[34,58],winR:[34,58],start:0},
+};
+let rooms=[],SHELL=[];
+function gridFor(n){const cols=n<=1?1:n<=4?2:3;return{cols,rows:Math.max(1,Math.ceil(n/cols))}}
+function setLayout(list){
+  const n=Math.max(1,Math.min(9,list.length)),g=gridFor(n);
+  COLS=g.cols;ROWS=g.rows;HSX=COLS*GAP-4;HSY=ROWS*GAP-4;GRID=[];
+  rooms=[];
+  for(let i=0;i<COLS*ROWS;i++){
+    const src=list[i]||{name:'Spare room',tpl:'spare',spare:true},gx=i%COLS,gy=Math.floor(i/COLS),T=TPL[src.tpl]||TPL.spare;
+    const r={name:src.name,tpl:TPL[src.tpl]?src.tpl:'spare',spare:!!src.spare||!TPL[src.tpl],gx,gy,ox:gx*GAP,oy:gy*GAP,w:src.w??.6,xp:0,items:[]};
+    r.dw=r.w;const hasL=gx===0,hasR=gy===0;let owned=0;const lv=src.lv??T.start;
+    T.items.forEach((def,k)=>{if(def.need==='L'&&!hasL)return;if(def.need==='R'&&!hasR)return;
+      const o=def.fx?def.fx():{b:def.b(),L:def.L||[]};
+      const it={n:def.n,rar:T.rar[k]||'c',own:owned<lv,t0:0,landed:1};if(it.own)owned++;
+      it.boxes=o.b.map(b=>Object.assign(b,{x:b.x+r.ox,y:b.y+r.oy}));
+      it.L=(o.L||[]).map(l=>Object.assign({},l,{x:l.x+r.ox,y:l.y+r.oy}));r.items.push(it)});
+    GRID.push(i);rooms.push(r);
+  }
+  WINS=[];
+  rooms.forEach((r,ri)=>{const T=TPL[r.tpl];
+    if(r.gx===0&&T.winL)WINS.push({room:ri,pl:'X',a0:r.oy+T.winL[0],a1:r.oy+T.winL[1],z0:24,z1:48});
+    if(r.gy===0&&T.winR)WINS.push({room:ri,pl:'Y',a0:r.ox+T.winR[0],a1:r.ox+T.winR[1],z0:24,z1:48})});
+  WINS.forEach(w=>{w.am=(w.a0+w.a1)/2;w.zm=(w.z0+w.z1)/2});
+  SHELL=buildShell();setup();
+}
+function buildShell(){const S=[];
   S.push(B(-1500,-1500,-14,3000,3000,8,'#7cc35a',groundTex(),{out:1}));
-  S.push(B(-5,-5,-6,HS+5,HS+5,6,'#a49a8c',floorTex()));
-  S.push(B(-5,-5,0,5,HS+5,WH,'#ffffff',wallTex('L')));
-  S.push(B(0,-5,0,HS,5,WH,'#ffffff',wallTex('R')));
-  for(const s of[[0,30],[58,122],[150,HS]])S.push(B(88,s[0],0,4,s[1]-s[0],PH,'#ffffff',partTex('X')));
-  for(const s of[[0,30],[58,88],[92,122],[150,HS]])S.push(B(s[0],88,0,s[1]-s[0],4,PH,'#ffffff',partTex('Y')));
-  for(const w of WINS){const c=TH[w.room].curt,L=w.a1-w.a0;
+  S.push(B(-5,-5,-6,HSX+5,HSY+5,6,'#a49a8c',floorTex()));
+  S.push(B(-5,-5,0,5,HSY+5,WH,'#ffffff',wallTex('L')));
+  S.push(B(0,-5,0,HSX,5,WH,'#ffffff',wallTex('R')));
+  const segs=(len,count)=>{const out=[];let s=0;for(let k=0;k<count;k++){const g0=k*GAP+30,g1=k*GAP+58;out.push([s,g0]);s=g1}out.push([s,len]);return out};
+  for(let c=1;c<COLS;c++)for(const s of segs(HSY,ROWS))S.push(B(c*GAP-4,s[0],0,4,s[1]-s[0],PH,'#ffffff',partTex('X')));
+  for(let r=1;r<ROWS;r++)for(const s of segs(HSX,COLS))S.push(B(s[0],r*GAP-4,0,s[1]-s[0],4,PH,'#ffffff',partTex('Y')));
+  for(const w of WINS){const c=TPL[rooms[w.room].tpl].T.curt,L=w.a1-w.a0;
     if(w.pl==='X'){S.push(B(0,w.a0-3,w.z0-3.2,3,L+6,1.6,'#f6efe4'),B(0,w.a0-12,w.z1+6,2.4,L+24,1.2,WOODD),B(0,w.a0-9,w.z0-10,2.4,6,L+16,c,curtTex(c,2)),B(0,w.a1+3,w.z0-10,2.4,6,L+16,c,curtTex(c,2)))}
     else{S.push(B(w.a0-3,0,w.z0-3.2,L+6,3,1.6,'#f6efe4'),B(w.a0-12,0,w.z1+6,L+24,2.4,1.2,WOODD),B(w.a0-9,0,w.z0-10,6,2.4,L+16,c,curtTex(c,1)),B(w.a1+3,0,w.z0-10,6,2.4,L+16,c,curtTex(c,1)))}}
-  for(let i=0;i<20;i++)S.push(B(HS+4+i*6.2,128+(i%2)*2.4,-6,4.4,4.4,.6,'#cfc8bc',(f)=>f===0?null:'#9c958a',{out:1,flat:1}));
+  const PY=(ROWS-1)*GAP+44,FX=HSX+24,FY=HSY+24;
+  for(let i=0;i<24;i++)S.push(B(HSX+4+i*6.2,PY-6+(i%2)*2.4,-6,4.4,4.4,.6,'#cfc8bc',(f)=>f===0?null:'#9c958a',{out:1,flat:1}));
   const fence=(x0,y0,x1,y1,gap)=>{const n=Math.round(Math.hypot(x1-x0,y1-y0)/6);for(let k=0;k<=n;k++){const X=x0+(x1-x0)*k/n,Y=y0+(y1-y0)*k/n;if(gap&&Y>gap[0]&&Y<gap[1])continue;S.push(B(X-.8,Y-.8,-6,1.6,1.6,7,'#f4efe6',(f,u,v)=>v>6.2?'#ffffff':(f===2?'#d9d0c4':null),{out:1}))}
     if(x0===x1){for(const g of gap?[[y0,gap[0]],[gap[1],y1]]:[[y0,y1]])S.push(B(x0-.4,g[0],-2.6,.8,g[1]-g[0],1,'#e8e0d4',null,{out:1}))}else S.push(B(x0,y0-.4,-2.6,x1-x0,.8,1,'#e8e0d4',null,{out:1}))};
-  fence(204,2,204,204,[124,142]);fence(2,204,204,204,null);
-  S.push(...tree(195,16,1.7,5),...tree(16,195,1.55,8),...tree(250,60,1.7,23),...tree(-40,330,1.8,31),...tree(340,-30,1.8,32),...tree(330,300,1.6,33),...tree(150,360,1.5,34),...tree(60,262,1.8,24),...tree(255,215,1.5,25),...bush(190,60,1,3,'#ff8fa3'),...bush(190,96,.9,6,'#ffd35c'),...bush(60,192,1,9,'#b9a3ff'),...bush(118,192,.9,2,'#ffffff'),...bush(188,188,1.1,4,null));
-  S.push(B(196,152,-6,1.6,1.6,10,'#7a4e2d',null,{out:1}),B(193.6,150.4,4,6.4,4.8,4,'#e05a4f',(f,u,v)=>f===0?'#f2857a':(f===1&&v<1?'#a83a3a':null),{out:1}),B(192.4,151.6,5.4,1.6,2.4,1.4,'#fff8e7',null,{out:1}),B(199.6,152,6,.8,.8,5,'#ffd35c',null,{out:1}));
-  return S})();
-SHELL.forEach(b=>{if(b.out||b.cast)b.rid=-1});
+  fence(FX,2,FX,FY,[PY-10,PY+10]);fence(2,FY,FX,FY,null);
+  S.push(...tree(HSX+15,16,1.7,5),...tree(16,HSY+15,1.55,8),...tree(HSX+70,60,1.7,23),...tree(-40,HSY+150,1.8,31),...tree(HSX+160,-30,1.8,32),...tree(HSX+150,HSY+120,1.6,33),...tree(HSX-30,HSY+180,1.5,34),...tree(60,HSY+82,1.8,24),...tree(HSX+75,HSY+35,1.5,25),...bush(HSX+10,60,1,3,'#ff8fa3'),...bush(HSX+10,PY-40,.9,6,'#ffd35c'),...bush(60,HSY+12,1,9,'#b9a3ff'),...bush(118,HSY+12,.9,2,'#ffffff'),...bush(HSX+8,HSY+8,1.1,4,null));
+  const MX=HSX+16,MY=PY+18;
+  S.push(B(MX,MY,-6,1.6,1.6,10,'#7a4e2d',null,{out:1}),B(MX-2.4,MY-1.6,4,6.4,4.8,4,'#e05a4f',(f,u,v)=>f===0?'#f2857a':(f===1&&v<1?'#a83a3a':null),{out:1}),B(MX-3.6,MY-.4,5.4,1.6,2.4,1.4,'#fff8e7',null,{out:1}),B(MX+3.6,MY,6,.8,.8,5,'#ffd35c',null,{out:1}));
+  S.forEach(b=>{if(b.out||b.cast)b.rid=-1});
+  return S}
 
 let sel=-1,parts=[];
 function proj(X,Y,Z){return[OX+X-Y,OY+(X+Y)/2-Z]}
@@ -429,10 +453,10 @@ function render(now){
   dep.fill(-1e9);oid.fill(-1);edge.fill(0);shadow.fill(0);
   let id=0;
   for(const b of SHELL){raster(b,b.out?900+(id%40):id,0);id++;if(b.cast)addShadow(b)}
-  const Ls=[[],[],[],[]];
+  const Ls=rooms.map(()=>[]);
   rooms.forEach((r,ri)=>{for(let k=0;k<r.items.length;k++){const it=r.items[k];if(!it.own||(it.t0&&now<it.t0))continue;let dz=0;
     if(it.t0){const p=(now-it.t0)/650;if(p<1)dz=34*(1-p)*(1-p);else if(!it.landed){it.landed=1;const b0=it.boxes[0];const[sx,sy]=proj(b0.x+b0.w/2,b0.y+b0.d/2,b0.z+b0.h);burst(sx,sy,22,true)}}
-    const gid=100+ri*200+k*20;
+    const gid=2000+ri*200+k*20;
     it.boxes.forEach((b,j)=>{raster(b,b.flat?gid:gid+1+(j%3),dz);if(!b.flat&&!b.emit&&b.z<26&&dz===0)addShadow(b)});
     it.L.forEach(l=>Ls[ri].push(l))}});
   for(let i=0;i<N;i++){if(oid[i]<0)continue;const px=i%CW;
@@ -603,7 +627,7 @@ mb.onclick=openDrawer;document.getElementById('dx').onclick=()=>{closeDrawer();m
 addEventListener('keydown',e=>{if(e.key==='Escape'){closePane();closeDrawer()}});
 
 const AREAS=[
- {id:'work',label:'Work',slot:0,kw:['work','job','boss','client','meeting','email','emails','office','deck','slides','project','manager','career','interview'],start:['Clear your inbox','Write down tomorrow\'s top 3','Tidy your desk']},
+ {id:'work',label:'Work',slot:0,kw:['work','job','startup','business','company','founder','boss','client','meeting','email','emails','office','deck','slides','project','manager','career','interview'],start:['Clear your inbox','Write down tomorrow\'s top 3','Tidy your desk']},
  {id:'study',label:'Study',slot:0,kw:['study','exam','exams','class','homework','course','school','uni','university','thesis','essay','lecture','professor'],start:['Review this week\'s notes','Start the next assignment','Make a study plan for the week']},
  {id:'money',label:'Money',slot:0,kw:['money','bill','bills','rent','budget','tax','taxes','bank','pay','savings','invoice','subscription'],start:['Pay any open bills','Check this month\'s budget','Cancel one subscription you don\'t use']},
  {id:'family',label:'Family',slot:1,kw:['family','mom','mum','mother','dad','father','sister','brother','parents','grandma','grandpa','kids','son','daughter','partner'],start:['Call someone in your family','Plan a family meal','Send a photo to the family chat']},
@@ -615,40 +639,7 @@ const AREAS=[
  {id:'creative',label:'Creative',slot:3,kw:['draw','drawing','paint','painting','write','writing','music','guitar','piano','design','photo','photos','creative','read','reading','book'],start:['Spend 15 minutes on your project','Save 3 pieces of inspiration','Share something you made']},
 ];
 document.getElementById('obcapy').innerHTML=capySVG({open:true,orange:true,id:'ob'});
-const BLOCK=['Getting started','Remembering things','Boring tasks','Too much at once'];
-const FREQ=['Every day','A few times a week','Only when I open it'];
-const BASE=rooms.map(r=>({name:r.name,own:r.items.map(it=>it.own),w:r.w}));
-const ob=document.getElementById('ob');
-let pick=[],block=null,freq=null,draft={},chatLog=[];
 const A=id=>AREAS.find(a=>a.id===id);
-function chipsHTML(list,attr){return list.map(x=>`<button class="chip" ${attr}="${esc(x.id||x)}" aria-pressed="false">${esc(x.label||x)}</button>`).join('')}
-document.getElementById('qa').innerHTML=chipsHTML(AREAS,'data-a');
-document.getElementById('qb').innerHTML=chipsHTML(BLOCK,'data-b');
-document.getElementById('qc').innerHTML=chipsHTML(FREQ,'data-c');
-function syncChips(){
-  document.querySelectorAll('[data-a]').forEach(b=>{const on=pick.includes(b.dataset.a);b.setAttribute('aria-pressed',on);b.disabled=!on&&pick.length>=4});
-  document.querySelectorAll('[data-b]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.b===block));
-  document.querySelectorAll('[data-c]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===freq));
-  document.getElementById('cnt').textContent=pick.length?`${pick.length} of 4 picked`:'Pick up to 4';
-}
-document.getElementById('qa').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.a;pick=pick.includes(id)?pick.filter(x=>x!==id):pick.concat(id).slice(0,4);document.getElementById('oberr').textContent='';syncChips()};
-document.getElementById('qb').onclick=e=>{const b=e.target.closest('[data-b]');if(b){block=b.dataset.b;syncChips();setTimeout(()=>go(3),260)}};
-document.getElementById('qc').onclick=e=>{const b=e.target.closest('[data-c]');if(b){freq=b.dataset.c;syncChips();setTimeout(()=>go(4),260)}};
-function go(n){
-  if(n>1&&!pick.length){n=1;document.getElementById('oberr').textContent='Pick at least one part of your life to continue.'}
-  [1,2,3,4].forEach(i=>document.getElementById('s'+i).style.display=i===n?'flex':'none');
-  if(n===4)enterChat();
-  const f=document.querySelector('#s'+n+' .chip,#s'+n+' textarea');if(f&&n!==1)f.focus();
-}
-document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
-const TIP={'Getting started':'Since starting is the hard part, I\'ll keep every to-do tiny.','Remembering things':'Tell me everything floating in your head, and I\'ll put it in a room so you don\'t have to remember it.','Boring tasks':'Boring ones are where the chests help. Every finished task gets one.','Too much at once':'We\'ll keep each room short. You only need one thing at a time.'};
-function say(text,who,add){chatLog.push({text,who,add});const c=document.getElementById('chat');const d=document.createElement('div');d.className='msg '+who;d.textContent=text;if(add){const s=document.createElement('span');s.className='add';s.textContent=add;d.appendChild(s)}c.appendChild(d);c.scrollTop=c.scrollHeight}
-function preview(){document.getElementById('pv').innerHTML=pick.map(id=>`<span><b>${esc(A(id).label)}</b> ${(draft[id]||[]).length+3} to-dos</span>`).join('')}
-function enterChat(){
-  if(!chatLog.length){const names=pick.map(id=>A(id).label);say(`Nice. Your house will have ${names.length===1?'one room':names.length+' rooms'}: ${names.join(', ')}.${block?' '+TIP[block]:''}\n\nWhat's on your mind? What have you been putting off?`,'bot')}
-  preview();
-}
-function areaFor(text){const t=' '+text.toLowerCase()+' ';let best=null,score=0;for(const id of pick){const s=A(id).kw.filter(k=>new RegExp('\\b'+k+'\\b').test(t)).length;if(s>score){score=s;best=id}}return best}
 function extract(text){
   const out=[],re=/\b(?:i\s+(?:really\s+)?(?:need|have|want|should|must|gotta|ought)\s+to|i'?d\s+like\s+to|remind\s+me\s+to|don'?t\s+forget\s+to|i\s+keep\s+(?:forgetting|putting\s+off)(?:\s+to)?|todo:?)\s+([^.!?\n;]+)/gi;let m;
   while((m=re.exec(text))){for(let part of m[1].split(/\s*,\s*|\s+and\s+(?:also\s+)?(?:i\s+)?(?=[a-z]+\s)/i)){part=part.replace(/\s+(?:but|because|so)\b.*$/i,'').trim();
@@ -656,38 +647,97 @@ function extract(text){
       if(part.split(' ').length>=2&&part.length<=80){const t=part.charAt(0).toUpperCase()+part.slice(1);if(!out.some(o=>o.toLowerCase()===t.toLowerCase()))out.push(t)}}}
   return out;
 }
-const NUDGE=['What\'s one small thing you could do this week?','Is there something you keep meaning to do for someone you love?','Anything with a deadline coming up?','What would make you feel lighter if it were done?'];let nudge=0;
-function send(){
-  const ta=document.getElementById('ta'),text=ta.value.trim();if(!text)return;ta.value='';say(text,'me');
-  const tasks=extract(text),added=[];
-  for(const t of tasks){const id=areaFor(t)||areaFor(text)||pick[0];(draft[id]=draft[id]||[]).push(t);added.push(`+ ${t} → ${A(id).label}`)}
-  setTimeout(()=>{
-    if(added.length)say(added.length===1?'Got it, I added that.':`Got it, I added ${added.length} things.`,'bot',added.join('\n'));
-    else{const id=areaFor(text);say(id?`Sounds like ${A(id).label} is on your mind. What's one thing you need to do there? Try starting with "I need to..."`:NUDGE[nudge++%NUDGE.length]+' Try starting with "I need to..."','bot')}
-    preview();
-  },350);
-}
-document.getElementById('send').onclick=send;
-document.getElementById('ta').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
-function store(cfg){try{localStorage.setItem('lh-setup',JSON.stringify(cfg))}catch(_){}}
-function applySetup(cfg){
-  for(const k in TODO)delete TODO[k];
-  const slots=[null,null,null,null];
-  for(const id of cfg.pick){const a=A(id);if(!a)continue;let s=slots[a.slot]===null?a.slot:slots.indexOf(null);if(s<0)continue;slots[s]=id}
-  rooms.forEach((r,ri)=>{const id=slots[ri],b=BASE[ri];r.items.forEach((it,k)=>{it.own=id?b.own[k]:false;it.t0=0;it.landed=1});
-    if(id){const a=A(id);r.name=a.label;r.spare=false;r.w=.6;TODO[r.name]=(cfg.draft[id]||[]).concat(a.start).map(t=>({t,done:false}))}
-    else{r.name='Spare room';r.spare=true;r.w=0}});
-  closePane();
-}
-function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);rooms.forEach((r,ri)=>{const b=BASE[ri];r.name=b.name;r.spare=false;r.w=b.w;r.items.forEach((it,k)=>it.own=b.own[k])})}
+const TPL_OF_SLOT=['desk','living','gym','nook'];
+const KIND_LABEL={desk:'Desk room',living:'Living room',gym:'Gym',nook:'Reading nook'};
 const DEMO={};for(const k in TODO)DEMO[k]=TODO[k];
-function openSetup(){pick=[];block=null;freq=null;draft={};chatLog=[];document.getElementById('chat').innerHTML='';document.getElementById('oberr').textContent='';syncChips();
-  rooms.forEach(r=>{r.items.forEach(it=>{it.own=false;it.t0=0});r.w=.3;r.spare=true});
-  go(1);ob.classList.add('show');closeDrawer();closePane()}
-function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=170}}))}
-document.getElementById('obgo').onclick=()=>{const cfg={pick,block,freq,draft};applySetup(cfg);store(cfg);ob.classList.remove('show');bringIn()};
-document.getElementById('obskip').onclick=()=>{resetDemo();store({demo:true});ob.classList.remove('show');bringIn()};
+const DEMO_LIST=[{name:'Work',tpl:'desk',lv:4,w:.95},{name:'Family',tpl:'living',lv:5,w:.8},{name:'Gym',tpl:'gym',lv:3,w:.15},{name:'French',tpl:'nook',lv:2,w:.3}];
+const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=document.getElementById('sums');
+const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
+const FIRST_Q='First, tell me who you are.',FIRST_HINT='Your name, what you do, what your days look like. Talk or type, as much as you like.';
+const FB_QS=[
+  ['What are the main things in your life right now?','Work, people, health, hobbies, anything that takes up space in your head.'],
+  ["What's on your plate this week?",'Anything you need to do, big or small. "I need to..." works great.'],
+  ["What have you been putting off?",'No judgment. Naming it is the first step.']];
+let hist=[],plan=null,offline=false,busy=false,asked=0;
+function showQ(q,hint){
+  document.getElementById('obt').textContent=q;document.getElementById('ivhint').textContent=hint||'';
+  document.getElementById('ivn').textContent=asked===0?"Let's build your house":`Question ${asked+1}`;
+  ivta.value='';ivta.disabled=false;ivta.focus();
+}
+function setBusy(b,msg){busy=b;ivnext.disabled=b;ivta.disabled=b;document.getElementById('ivstat').textContent=msg||''}
+async function askAI(finish){
+  const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist,finish:!!finish})});
+  if(!r.ok)throw new Error('status '+r.status);
+  const j=await r.json();if(!j||typeof j.question!=='string')throw new Error('bad reply');
+  return j;
+}
+function fallbackPlan(){
+  const all=hist.filter(m=>m.role==='user').map(m=>m.content).join('\n'),t=' '+all.toLowerCase()+' ';
+  const hits=a=>a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(t)).length;
+  const found=AREAS.map(a=>({a,s:hits(a)})).filter(x=>x.s>0).sort((x,y)=>y.s-x.s).slice(0,9).map(x=>x.a);
+  const areas=found.length?found:[A('work'),A('home'),A('health')];
+  const tasks={};
+  for(const task of extract(all)){const tt=' '+task.toLowerCase()+' ';let best=areas[0],bs=0;
+    for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
+    (tasks[best.id]=tasks[best.id]||[]).push(task)}
+  return{rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],todos:(tasks[a.id]||[]).concat(a.start).slice(0,6)})),message:''};
+}
+async function next(){
+  if(busy)return;const text=ivta.value.trim();
+  if(!text){oberr.textContent='Write or say something first, even one sentence.';return}
+  oberr.textContent='';stopMic();
+  hist.push({role:'user',content:asked===0?`(The app asked: "${FIRST_Q}")\n${text}`:text});asked++;
+  if(!offline){
+    setBusy(true,'Thinking...');
+    try{
+      const j=await askAI(asked>=8);setBusy(false);
+      if(Array.isArray(j.rooms)&&j.rooms.length)plan={rooms:j.rooms,message:j.message||''};
+      if(j.done&&plan){showSummary();return}
+      hist.push({role:'assistant',content:j.question});showQ(j.question,j.hint||'');return;
+    }catch(e){setBusy(false);offline=true}
+  }
+  if(asked-1<FB_QS.length){const q=FB_QS[asked-1];hist.push({role:'assistant',content:q[0]});showQ(q[0],q[1]);return}
+  plan=fallbackPlan();showSummary();
+}
+function uniq(list){const seen={};return list.map(r=>{let n=String(r.name||'Room').trim().slice(0,24)||'Room';const base=n;let k=2;while(seen[n.toLowerCase()])n=base+' '+k++;seen[n.toLowerCase()]=1;return Object.assign({},r,{name:n})})}
+function showSummary(){
+  plan.rooms=uniq(plan.rooms.slice(0,9));
+  document.getElementById('sumlead').textContent=plan.message||`${plan.rooms.length} rooms, one for each part of your life, with your to-dos inside.`;
+  document.getElementById('sumgrid').innerHTML=plan.rooms.map(r=>`<div class="scard"><h3>${esc(r.name)}</h3><span class="kind">${esc(KIND_LABEL[r.template]||'Room')}</span><ul>${(r.todos||[]).map(t=>`<li>${esc(String(t))}</li>`).join('')}</ul></div>`).join('');
+  ivs.style.display='none';sums.style.display='flex';document.getElementById('obgo').focus();
+}
+function buildFromPlan(){
+  for(const k in TODO)delete TODO[k];
+  setLayout(plan.rooms.map(r=>({name:r.name,tpl:(TPL[r.template]&&r.template!=='spare')?r.template:'desk',lv:2,w:.6})));
+  plan.rooms.forEach(r=>TODO[r.name]=(r.todos||[]).slice(0,8).map(t=>({t:String(t),done:false})));
+}
+function resetDemo(){for(const k in TODO)delete TODO[k];Object.assign(TODO,DEMO);setLayout(DEMO_LIST)}
+function bringIn(){const now=performance.now();let d=350;rooms.forEach(r=>r.items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=150}}))}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition,micBtn=document.getElementById('mic');let rec=null,micOn=false,micBase='';
+if(!SR)micBtn.style.display='none';
+function stopMic(){if(rec&&micOn){micOn=false;try{rec.stop()}catch(_){}}micBtn.setAttribute('aria-pressed','false');document.getElementById('miclbl').textContent='Talk'}
+micBtn.onclick=()=>{
+  if(micOn){stopMic();return}
+  rec=new SR();rec.lang=navigator.language||'en-US';rec.continuous=true;rec.interimResults=true;
+  micBase=ivta.value?ivta.value.replace(/\s*$/,' '):'';
+  rec.onresult=e=>{let fin='',mid='';for(let i=0;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else mid+=t}ivta.value=micBase+fin+mid};
+  rec.onerror=e=>{oberr.textContent=e.error==='not-allowed'?'Microphone access is blocked. Allow it in your browser, or type instead.':'The microphone stopped. Try again, or type instead.';stopMic()};
+  rec.onend=()=>{if(micOn){micBase=ivta.value?ivta.value.replace(/\s*$/,' '):'';try{rec.start()}catch(_){stopMic()}}};
+  try{rec.start();micOn=true;micBtn.setAttribute('aria-pressed','true');document.getElementById('miclbl').textContent='Stop'}catch(_){oberr.textContent='Could not start the microphone. Type instead.'}
+};
+function openSetup(){
+  hist=[];plan=null;asked=0;oberr.textContent='';setBusy(false);stopMic();
+  sums.style.display='none';ivs.style.display='flex';ob.classList.add('show');closeDrawer();closePane();
+  showQ(FIRST_Q,FIRST_HINT);
+}
+ivnext.onclick=next;
+ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
+document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'Add anything missing, or tell me what to change.')};
+document.getElementById('restart').onclick=openSetup;
+document.getElementById('obgo').onclick=()=>{buildFromPlan();ob.classList.remove('show');bringIn()};
+document.getElementById('obskip').onclick=()=>{stopMic();resetDemo();ob.classList.remove('show');bringIn()};
 document.getElementById('redo').onclick=openSetup;
+setLayout(DEMO_LIST);
 openSetup();
 requestAnimationFrame(loop);
 </script>
