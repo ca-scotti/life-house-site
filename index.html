@@ -205,8 +205,9 @@ let COLS=2,ROWS=2,HSX=180,HSY=180,GRID=[];
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let CW,CH,OX,OY,IMG,D,N,cR,cG,cB,pX,pY,pZ,dep,nrm,emi,edge,oid,rid,outd;
 function setup(){
-  const span=HSX+HSY,sc=Math.max(1.2,Math.min(innerWidth/(span+80),innerHeight/(span/2+150)));
-  CW=Math.ceil(innerWidth/sc);CH=Math.ceil(innerHeight/sc);OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(CH/2-(span/2-47)/2);
+  const vw=innerWidth||800,vh=innerHeight||600;
+  const span=HSX+HSY,sc=Math.max(1.2,Math.min(vw/(span+80),vh/(span/2+150)));
+  CW=Math.max(1,Math.ceil(vw/sc));CH=Math.max(1,Math.ceil(vh/sc));OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(CH/2-(span/2-47)/2);
   cv.width=CW;cv.height=CH;IMG=ctx.createImageData(CW,CH);D=IMG.data;N=CW*CH;
   cR=new Float32Array(N);cG=new Float32Array(N);cB=new Float32Array(N);pX=new Float32Array(N);pY=new Float32Array(N);pZ=new Float32Array(N);dep=new Float32Array(N);
   nrm=new Uint8Array(N);emi=new Uint8Array(N);edge=new Uint8Array(N);oid=new Int16Array(N);rid=new Int8Array(N);outd=new Uint8Array(N);
@@ -643,8 +644,9 @@ mb.onclick=openDrawer;document.getElementById('dx').onclick=()=>{closeDrawer();m
 addEventListener('keydown',e=>{if(e.key==='Escape'){closePane();closeDrawer()}});
 
 const AREAS=[
- {id:'work',label:'Work',slot:0,kw:['work','job','startup','business','company','founder','boss','client','meeting','email','emails','office','deck','slides','project','manager','career','interview'],start:['Clear your inbox','Write down tomorrow\'s top 3','Tidy your desk']},
- {id:'study',label:'Study',slot:0,kw:['study','exam','exams','class','homework','course','school','uni','university','thesis','essay','lecture','professor'],start:['Review this week\'s notes','Start the next assignment','Make a study plan for the week']},
+ {id:'work',label:'Work',slot:0,kw:['work','job','startup','business','company','founder','boss','client','meeting','email','emails','office','deck','slides','project','manager'],start:['Clear your inbox','Write down tomorrow\'s top 3','Tidy your desk']},
+ {id:'career',label:'Career',slot:0,kw:['recruiting','recruitment','internship','job search','job hunt','job application','application','interview','networking','coffee chat','linkedin','resume','cv','cover letter','offer','career','headhunter'],start:['Update your resume','Send one networking message','Prep stories for your next interview']},
+ {id:'study',label:'Study',slot:0,kw:['study','mba','master','masters','phd','grad school','exam','exams','class','homework','assignment','midterm','final','case','reading list','course','school','uni','university','thesis','essay','lecture','professor'],start:['Review this week\'s notes','Start the next assignment','Make a study plan for the week']},
  {id:'money',label:'Money',slot:0,kw:['money','bill','bills','rent','budget','tax','taxes','bank','pay','savings','invoice','subscription'],start:['Pay any open bills','Check this month\'s budget','Cancel one subscription you don\'t use']},
  {id:'family',label:'Family',slot:1,kw:['family','mom','mum','mother','dad','father','sister','brother','parents','grandma','grandpa','kids','son','daughter','partner'],start:['Call someone in your family','Plan a family meal','Send a photo to the family chat']},
  {id:'friends',label:'Friends',slot:1,kw:['friend','friends','party','birthday','catch up','hang out','drinks'],start:['Text a friend you miss','Plan a coffee catch-up','Write down upcoming birthdays']},
@@ -736,12 +738,12 @@ async function askAI(finish){
 }
 function fallbackPlan(){
   const all=hist.filter(m=>m.role==='user').map(m=>m.content).join('\n'),t=' '+all.toLowerCase()+' ';
-  const hits=a=>a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(t)).length;
+  const hits=a=>a.kw.filter(k=>new RegExp('\\b'+k+'(?:e?s)?\\b').test(t)).length;
   const found=AREAS.map(a=>({a,s:hits(a)})).filter(x=>x.s>0).sort((x,y)=>y.s-x.s).slice(0,9).map(x=>x.a);
   const areas=found.length?found:[A('work'),A('home'),A('health')];
   const tasks={};
   for(const task of extract(all)){const tt=' '+task.toLowerCase()+' ';let best=areas[0],bs=0;
-    for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
+    for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'(?:e?s)?\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
     (tasks[best.id]=tasks[best.id]||[]).push(task)}
   const gAns=(hist.find((m,i)=>m.role==='user'&&hist[i-1]&&hist[i-1].content===FB_QS[0][1])||{}).content||'';
   const goals=gAns.split(/[.;\n]|,\s*|\s+and\s+(?=i\s)/i).map(s=>s.replace(/^\s*(?:and|also|i\s+want\s+to|i'?d\s+like\s+to|my\s+goal\s+is\s+to|to)\s+/i,'').trim()).filter(s=>s.split(' ').length>=2&&s.length<=60&&!/^\(skipped/i.test(s)).slice(0,6).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
