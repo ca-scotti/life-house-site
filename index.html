@@ -157,6 +157,19 @@ body{color:var(--ink);font-family:'Pixelify Sans',system-ui,sans-serif}
 .nulater{font:inherit;font-size:13px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px 0}
 .nudone:focus-visible,.nulater:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .nuempty{color:var(--muted);font-size:15px;padding:4px 2px}
+.nubtns{flex-wrap:wrap}
+.nulink{font:inherit;font-size:13px;background:none;border:0;color:var(--acc);text-decoration:underline;cursor:pointer;padding:4px 0;margin-left:auto}
+.nulink:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.nucard.stepped{border-color:#5d5232}
+.nustep{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--acc)}
+.pips{display:flex;gap:3px}.pips i{width:12px;height:6px;background:#3a3e58}.pips i.f{background:var(--acc)}.pips i.c{background:#8a6c2c}
+.nuof{font-size:12px;color:var(--muted);margin-top:-2px}
+.nuoffer{font-size:13px;color:var(--acc);margin-top:auto;padding-top:4px}
+.nuoffer+.nubtns{margin-top:0}
+.nubusy{font-size:13px;color:var(--muted);margin-top:auto;padding-top:6px}
+.tl .stp{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+html.show .menu-btn,html.show .dump-btn,html.show .nextup,html.show .toast,html.show .pane,html.show .drawer,html.show .ob,html.show .sheet-wrap{display:none!important}
+html.show .stage{pointer-events:none}
 @media (max-width:640px){.nucards{grid-template-columns:1fr}}
 .toast{position:fixed;z-index:7;left:50%;top:max(16px,env(safe-area-inset-top,0px));transform:translate(-50%,-16px);opacity:0;transition:opacity .25s,transform .25s;background:var(--acc);color:#3a2a10;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:18px;padding:10px 18px;border:2px solid #11131d;box-shadow:0 4px 0 #a07a2a;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -284,12 +297,15 @@ canvas{image-rendering:pixelated;width:100%;max-width:880px;height:auto;display:
 <div class="pane" id="pane"><button class="x" id="px" aria-label="Close">x</button><h2><span id="pn"></span><span class="tag" id="pt"></span></h2><p id="pd"></p><ul id="pl"></ul></div>
 <script>
 const WH=62,PH=12,RS=88,GAP=92;
+const SHOW=new URLSearchParams(location.search).get('show')||'';let PAUSED=false;
+if(SHOW)document.documentElement.classList.add('show');
 let COLS=2,ROWS=2,HSX=180,HSY=180,GRID=[];
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let CW,CH,OX,OY,IMG,D,N,cR,cG,cB,pX,pY,pZ,dep,nrm,emi,edge,oid,rid,outd;
 function setup(){
-  const vw=innerWidth||800,vh=innerHeight||600,res=Math.min(230,vh*.38),vhe=vh-res;
-  const span=Math.max(HSX+HSY,360),sc=Math.max(1.2,Math.min(vw/(span+80),vhe/(span/2+150)));
+  const vw=innerWidth||800,vh=innerHeight||600,res=SHOW?0:Math.min(230,vh*.38),vhe=vh-res;
+  const span=Math.max(HSX+HSY,360),sc=Math.max(SHOW?.5:1.2,Math.min(vw/(span+(SHOW?40:80)),vhe/(span/2+(SHOW?110:150))));
+  if(SHOW)cv.style.imageRendering=sc<1?'auto':'';
   CW=Math.max(1,Math.ceil(vw/sc));CH=Math.max(1,Math.ceil(vh/sc));OX=Math.round(CW/2-(HSX-HSY)/2);OY=Math.round(vhe/sc/2-((HSX+HSY)/2-47)/2);
   cv.width=CW;cv.height=CH;IMG=ctx.createImageData(CW,CH);D=IMG.data;N=CW*CH;
   cR=new Float32Array(N);cG=new Float32Array(N);cB=new Float32Array(N);pX=new Float32Array(N);pY=new Float32Array(N);pZ=new Float32Array(N);dep=new Float32Array(N);
@@ -626,7 +642,7 @@ function drawCapy(){
 }
 
 let last=0;
-function loop(now){requestAnimationFrame(loop);if(now-last<45)return;last=now;rooms.forEach(r=>r.dw+=(r.w-r.dw)*.1);render(now)}
+function loop(now){requestAnimationFrame(loop);if(PAUSED||now-last<45)return;last=now;rooms.forEach(r=>r.dw+=(r.w-r.dw)*.1);render(now)}
 const DEMO_TODOS={
   Work:['Reply to the client email about the deck','Finish slides 4 to 7','Book a 1:1 with your manager','Clear out the downloads folder'],
   Family:['Call mom on Sunday','Buy a birthday gift for dad','Plan a dinner with your siblings'],
@@ -679,15 +695,54 @@ function renderNext(){
   document.getElementById('nusub').textContent=doneCount===0&&AREAS_ST.some(a=>!a.built)?'Your house grows a room the first time you finish something in a new area.':'';
   const box=document.getElementById('nucards');
   if(!slots.some(Boolean)){box.innerHTML='<div class="nuempty">All clear. Nothing is waiting right now.</div>';return}
-  box.innerHTML=slots.map((s,k)=>{if(!s)return '';const x=TODO[s.a][s.i],a=areaOf(s.a),tags=[];
-    if(x.tiny)tags.push('10 min or less');const dl=dueLabel(x);if(dl)tags.push(dl);
-    return `<div class="nucard"><div class="nurm"><span class="dot${a&&a.built&&a.w>.45?' lit':''}"></span><span>${esc(s.a)}</span>${a&&!a.built?'<span class="nunew">builds a new room</span>':''}</div><div class="nut">${esc(x.t)}</div>${tags.length?`<div class="nutags">${tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:''}<div class="nubtns"><button class="nudone" data-k="${k}">Done</button><button class="nulater" data-k="${k}">Not now</button></div></div>`}).join('');
-  box.querySelectorAll('.nudone').forEach(b=>b.onclick=()=>{const s=slots[+b.dataset.k];if(s)completeTodo(s.a,s.i)});
-  box.querySelectorAll('.nulater').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,s=slots[k];if(!s)return;TODO[s.a][s.i].notNow=DAY();refill(k);renderNext()});
+  box.innerHTML=slots.map((s,k)=>s?cardHTML(s,k):'').join('');
+  box.querySelectorAll('.nudone:not(.nubreak)').forEach(b=>b.onclick=()=>{const s=slots[+b.dataset.k];if(s)completeTodo(s.a,s.i)});
+  box.querySelectorAll('.nubreak').forEach(b=>b.onclick=()=>{const s=slots[+b.dataset.k];if(s)breakDown(s.a,s.i)});
+  box.querySelectorAll('.nulater').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,s=slots[k];if(!s)return;const x=TODO[s.a][s.i];
+    if(b.dataset.off){x.offer=false;refill(k);renderNext();return}
+    x.notNow=DAY();x.skips=(x.skips||0)+1;
+    /* skipped twice: probably too big or unclear, so offer steps instead of hiding it again */
+    if(x.skips>=2&&!x.offered&&!x.steps){x.offer=true;x.offered=true;renderNext();return}
+    refill(k);renderNext()});
+}
+let breaking=null;
+const stepAt=x=>x.steps?x.steps.findIndex(s=>!s.done):-1;
+function cardHTML(s,k){
+  const x=TODO[s.a][s.i],a=areaOf(s.a),tags=[],si=stepAt(x),busyHere=breaking&&breaking.a===s.a&&breaking.i===s.i;
+  const head=`<div class="nurm"><span class="dot${a&&a.built&&a.w>.45?' lit':''}"></span><span>${esc(s.a)}</span>${a&&!a.built?'<span class="nunew">builds a new room</span>':''}</div>`;
+  let body;
+  if(si>=0){const st=x.steps[si];if(st.m)tags.push(`about ${st.m} min`);
+    body=`<div class="nustep"><span>Step ${si+1} of ${x.steps.length}</span><span class="pips" aria-hidden="true">${x.steps.map((p,j)=>`<i class="${p.done?'f':j===si?'c':''}"></i>`).join('')}</span></div><div class="nut">${esc(st.t)}</div><div class="nuof">${esc(x.t)}</div>`}
+  else{body=`<div class="nut">${esc(x.t)}</div>`;if(x.tiny)tags.push('10 min or less')}
+  const dl=dueLabel(x);if(dl)tags.push(dl);
+  const tg=tags.length?`<div class="nutags">${tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:'';
+  let btns;
+  if(busyHere)btns='<div class="nubusy" role="status">Breaking it into small steps...</div>';
+  else if(x.offer)btns=`<div class="nuoffer">Skipped twice. Want it in small steps?</div><div class="nubtns"><button class="nudone nubreak" data-k="${k}">Break it down</button><button class="nulater" data-k="${k}" data-off="1">Not now</button></div>`;
+  else btns=`<div class="nubtns"><button class="nudone" data-k="${k}">Done</button><button class="nulater" data-k="${k}">Not now</button>${si<0?`<button class="nulink nubreak" data-k="${k}">Break it down</button>`:''}</div>`;
+  return `<div class="nucard${si>=0?' stepped':''}">${head}${body}${tg}${btns}</div>`;
+}
+function offlineSteps(t){const low=t.toLowerCase();
+  if(/^(reply|email|write|text|message|answer)\b/.test(low))return[{text:'Open the conversation',minutes:2},{text:'Write 2 rough sentences',minutes:5},{text:'Read it once and send it',minutes:5}];
+  if(/^(call|book|schedule|phone)\b/.test(low))return[{text:'Find the number or booking page',minutes:3},{text:'Jot down what you need to say',minutes:5},{text:t,minutes:10}];
+  return[{text:'Get out what you need for it',minutes:3},{text:'Do the first 15 minutes',minutes:15},{text:'Do the next 15 minutes',minutes:15},{text:'Finish up and check it',minutes:15}];
+}
+async function breakDown(a,i){
+  const x=(TODO[a]||[])[i];if(!x||x.done||x.steps||breaking)return;
+  x.offer=false;breaking={a,i};renderNext();let st=null;
+  if(!offline){try{const j=await callAI({mode:'steps',areas:areasCtx(),goals:GOALS,messages:[{role:'user',content:`To-do: ${x.t}\nRoom: ${a}${x.due!==null?`\nDue in ${Math.max(0,x.due-DAY())} days`:''}`}]});st=j&&j.steps}
+    catch(e){offline=true;aiErr=String(e&&e.message||e)}}
+  if(!Array.isArray(st)||st.length<2)st=offlineSteps(x.t);
+  x.steps=st.slice(0,6).map(p=>({t:String(p.text||'').trim().slice(0,70)||'Next step',m:Number.isInteger(p.minutes)&&p.minutes>0?p.minutes:0,done:false}));
+  breaking=null;renderNext();
+  if(drawer.classList.contains('open'))renderTodos();if(paneRoom>=0&&pane.classList.contains('show'))fillPane(paneRoom);
+  toast(`${x.steps.length} small steps. Each one opens a chest.`);
 }
 function taskList(name,limit){const all=(TODO[name]||[]).map((x,i)=>({x,i})).filter(o=>!o.x.done).sort((p,q)=>p.x.ord-q.x.ord);
   const shown=limit?all.slice(0,limit):all;
-  let h=shown.map(({x,i})=>`<li><button class="tl" data-a="${esc(name)}" data-i="${i}" aria-label="Mark done: ${esc(x.t)}"><span class="bx"></span><span>${esc(x.t)}</span></button></li>`).join('');
+  let h=shown.map(({x,i})=>{const si=stepAt(x),now=si>=0?x.steps[si].t:x.t;
+    const sub=si>=0?`<span class="stp">Step ${si+1} of ${x.steps.length}: ${esc(now)}</span>`:'';
+    return `<li><button class="tl" data-a="${esc(name)}" data-i="${i}" aria-label="Mark done: ${esc(now)}"><span class="bx"></span><span>${esc(x.t)}${sub}</span></button></li>`}).join('');
   if(limit&&all.length>limit)h+=`<li class="more"><button class="oblink morebtn" data-a="${esc(name)}">${all.length-limit} more here</button></li>`;
   return h}
 function wireTasks(root,rerender){root.querySelectorAll('.tl').forEach(b=>b.onclick=()=>completeTodo(b.dataset.a,+b.dataset.i));
@@ -700,14 +755,18 @@ function fillPane(ri){
   const pl=document.getElementById('pl');pl.innerHTML=r.spare?'':taskList(r.name,expanded[r.name]?0:3);wireTasks(pl,()=>fillPane(ri));
 }
 function completeTodo(name,i){
-  const x=(TODO[name]||[])[i];if(!x||x.done)return;x.done=true;
+  const x=(TODO[name]||[])[i];if(!x||x.done)return;
+  /* a broken-down to-do finishes one step at a time; every step still lights the room and opens a chest */
+  let more=false;if(x.steps){const st=x.steps.find(s=>!s.done);if(st)st.done=true;more=x.steps.some(s=>!s.done)}
+  if(!more)x.done=true;
   const a=areaOf(name);let built=false;
   if(a&&!a.built){saveHouse();a.built=true;a.bi=Math.max(0,...AREAS_ST.filter(o=>o.built&&o!==a).map(o=>o.bi))+1;a.w=1;a.dw=.3;a.lv=1;closePane();rebuildHouse();built=true}
   const ri=roomIdx(name);if(ri>=0){rooms[ri].w=1;if(a)a.w=1}
   if(name===lastArea)streak++;else{lastArea=name;streak=1}doneCount++;
-  const k=slots.findIndex(s=>s&&s.a===name&&s.i===i);if(k>=0)refill(k);
+  const k=slots.findIndex(s=>s&&s.a===name&&s.i===i);if(k>=0&&!more)refill(k);
   if(ri>=0){const r=rooms[ri],[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,10,false)}
   if(built&&ri>=0){const now=performance.now();let d=250;rooms[ri].items.forEach(it=>{if(it.own){it.t0=now+d;it.landed=0;d+=220}});toast(`New room: ${name}`)}
+  else if(x.steps&&!more)toast(`All steps done: ${x.t}`);
   if(paneRoom>=0&&pane.classList.contains('show'))fillPane(paneRoom);
   if(drawer.classList.contains('open'))renderTodos();
   renderNext();
@@ -749,7 +808,7 @@ function openChest(ri){
   document.getElementById('ctitle').textContent='You found a chest';
   document.getElementById('csub').textContent=`From your ${r.name} room`;
   document.getElementById('cres').innerHTML='';cbtn.textContent='Open it';
-  chc.classList.add('shake');cw.classList.add('show');cbtn.focus();
+  chc.classList.add('shake');cw.classList.add('show');if(!SHOW)cbtn.focus();
   if(!anim)anim=requestAnimationFrame(animChest);
 }
 cbtn.onclick=()=>{
@@ -873,14 +932,11 @@ const KIND_LABEL={desk:'Desk room',living:'Living room',gym:'Gym',nook:'Reading 
 const DEMO_LIST=[{name:'Work',tpl:'desk',lv:4,w:.95},{name:'Family',tpl:'living',lv:5,w:.8},{name:'Gym',tpl:'gym',lv:3,w:.15},{name:'French',tpl:'nook',lv:2,w:.3}];
 const ob=document.getElementById('ob'),ivs=document.getElementById('ivs'),sums=document.getElementById('sums');
 const ivta=document.getElementById('ivta'),ivnext=document.getElementById('ivnext'),oberr=document.getElementById('oberr');
-const STEPS=['About you','Big goals','People and areas','In progress','This week'];
+const STEPS=['About you','This week'];
 const FIRST_Q="What's your name, and what fills most of your weekdays?";
 const FIRST_HINT='One or two sentences is plenty. Like: "I\'m Ana, a nurse on night shifts" or "I\'m Leo, finishing my master\'s and working part-time."';
 const FB_QS=[
-  [2,'If the next 12 months went really well, what would be different?','Name 2 or 3 things. Like: "I finished my thesis, I can run 10k, I feel calmer about money."'],
-  [3,'Besides that, who and what needs your attention most weeks?','People (partner, parents, kids, friends), your health, your home, money, a side project.'],
-  [4,"What are you in the middle of right now?",'Projects, applications, a class, a move. Just name them, even if you have no idea what comes next. Figuring out the steps is my job.'],
-  [5,'What has to happen in the next 7 days?','Deadlines, bills, appointments, replies you owe someone. "I need to..." works great.']];
+  [2,'What has to happen in the next 7 days?','Deadlines, bills, appointments, replies you owe someone. Just list them, in any order.']];
 let hist=[],plan=null,offline=false,busy=false,asked=0,curStep=1,aiErr='';
 let seenOrder=[];
 function showSoFar(){
@@ -915,9 +971,8 @@ function fallbackPlan(){
   for(const task of extract(all)){const tt=' '+task.toLowerCase()+' ';let best=areas[0],bs=0;
     for(const a of areas){const s=a.kw.filter(k=>new RegExp('\\b'+k+'(?:e?s)?\\b').test(tt)).length;if(s>bs){bs=s;best=a}}
     (tasks[best.id]=tasks[best.id]||[]).push(task)}
-  const gAns=(hist.find((m,i)=>m.role==='user'&&hist[i-1]&&hist[i-1].content===FB_QS[0][1])||{}).content||'';
-  const goals=gAns.split(/[.;\n]|,\s*|\s+and\s+(?=i\s)/i).map(s=>s.replace(/^\s*(?:and|also|i\s+want\s+to|i'?d\s+like\s+to|my\s+goal\s+is\s+to|to)\s+/i,'').trim()).filter(s=>s.split(' ').length>=2&&s.length<=60&&!/^\(skipped/i.test(s)).slice(0,6).map(s=>s.charAt(0).toUpperCase()+s.slice(1));
-  return{guessed:!found.length,goals,rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:(tasks[a.id]||[]).concat(a.start).slice(0,7)})),message:''};
+  /* big goals are asked later, in the first check-in */
+  return{guessed:!found.length,goals:[],rooms:areas.map(a=>({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:(tasks[a.id]||[]).concat(a.start).slice(0,7)})),message:''};
 }
 async function next(skip){
   if(busy)return;let text=ivta.value.trim();
@@ -928,7 +983,7 @@ async function next(skip){
   if(!offline){
     setBusy(true,'Thinking...');
     try{
-      const j=await askAI(asked>=11);setBusy(false);
+      const j=await askAI(asked>=7);setBusy(false);
       if(Array.isArray(j.rooms)&&j.rooms.length)plan={rooms:j.rooms,goals:Array.isArray(j.goals)?j.goals:[],message:j.message||''};
       if(j.done&&plan){showSummary();return}
       hist.push({role:'assistant',content:j.question});showQ(j.question,j.hint||'',j.step,j.ack||'');return;
@@ -994,14 +1049,14 @@ function openSetup(){
 ivnext.onclick=()=>next(false);
 document.getElementById('ivskip').onclick=()=>next(true);
 ivta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();next()}});
-document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',5,'')};
+document.getElementById('sumback').onclick=()=>{const q='What else should your house know?';hist.push({role:'assistant',content:q});sums.style.display='none';ivs.style.display='flex';showQ(q,'A room I missed, a to-do to add, or something to change. Like: "Add a room for my dog."',STEPS.length,'')};
 document.getElementById('restart').onclick=openSetup;
 document.getElementById('obgo').onclick=()=>{if(!buildFromPlan())return;ob.classList.remove('show');bringIn();renderNext()};
 document.getElementById('obskip').onclick=()=>{stopMic();startDemo();ob.classList.remove('show');bringIn();renderNext()};
 document.getElementById('redo').onclick=openSetup;
 let GOALS=[];
 const TOPICS={
-  vision:{q:'In 12 months, what do you want your life to look like?',hint:'Work, people, health, fun. Whatever comes to mind, even if it is fuzzy.',opts:[]},
+  vision:{q:'In 12 months, what do you want your life to look like?',hint:'Tap what fits, or say it in your own words. Fuzzy is fine.',opts:['Healthier and more active','Calmer, less stressed','Further in my career','Closer to people I love','Learning something new']},
   joy:{q:'Besides work, is there a hobby or something you would love to get better at?',hint:'Tap one, or tell me in your own words.',opts:['Learn a language','Play music','Make art','Read more','Cook','A sport']},
   body:{q:'How would you like to take care of your body and mind?',hint:'Tap one, or tell me in your own words.',opts:['Move more','Better sleep habits','Mindfulness']},
   people:{q:'Want help keeping your social life going?',hint:'Tap one, or tell me in your own words.',opts:['Keep in touch with friends','Family time','Meet new people','Time with my partner']},
@@ -1013,10 +1068,10 @@ const TOPIC_COVERED={
   people:a=>/friend|social|people|community|network/i.test(a.name)};
 const TOPIC_DEFAULT={joy:'creative',body:'fitness',people:'friends'};
 const MIND={id:'mind',label:'Mindfulness',slot:2,kw:[],start:['Take 5 slow breaths right now','Try a 5 minute guided meditation','Write one line about how you feel today']};
-const OPT_AREA={'learn a language':'language','play music':'creative','make art':'creative','read more':'creative','cook':'home','a sport':'fitness','move more':'fitness','better sleep habits':'health','mindfulness':'mind','keep in touch with friends':'friends','family time':'family','meet new people':'friends','time with my partner':'family','more rest':'health','more fun':'creative','more focus':'work','more time with people':'friends'};
+const OPT_AREA={'learn a language':'language','play music':'creative','make art':'creative','read more':'creative','cook':'home','a sport':'fitness','move more':'fitness','better sleep habits':'health','mindfulness':'mind','keep in touch with friends':'friends','family time':'family','meet new people':'friends','time with my partner':'family','more rest':'health','more fun':'creative','more focus':'work','more time with people':'friends','healthier and more active':'fitness','calmer, less stressed':'mind','further in my career':'career','closer to people i love':'friends','learning something new':'creative'};
 /* exp.next: finished-task count that unlocks the next check-in; at most 2 a day */
 let exp={next:3,day:-1,n:0,done:{},declined:{}},INBOX=[];
-function resetGrowth(){exp={next:3,day:-1,n:0,done:{vision:GOALS.length>0},declined:{}};INBOX=[];updateDumpBadge()}
+function resetGrowth(){exp={next:3,day:-1,n:0,done:{},declined:{}};INBOX=[];updateDumpBadge()}
 const areasCtx=()=>AREAS_ST.map(a=>({name:a.name,template:a.tpl}));
 async function callAI(p){
   const r=await fetch('/api/interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({today:todayStr()},p))});
@@ -1086,7 +1141,9 @@ async function chatSend(){
     shBusy(false)}
   if(!j)j=offlineExpand(sh.topic,sh.hist.filter(m=>m.role==='user').map(m=>m.content.replace(/^\(The app asked:[^\n]*\n/,'')).join('. '));
   if(!j.done&&j.question){sh.hist.push({role:'assistant',content:j.question});setSheet({ack:j.ack,title:j.question,hint:j.hint,opts:j.options||[],go:'Send',alt:'Later',alt2:'Not for me'});return}
-  exp.done[sh.topic]=true;exp.next=doneCount+5;showResult(j);
+  exp.done[sh.topic]=true;exp.next=doneCount+5;
+  if(Array.isArray(j.goals)&&j.goals.length)GOALS=j.goals.map(g=>String(g).slice(0,60)).slice(0,6);
+  showResult(j);
 }
 function offlineExpand(topic,text){
   const low=text.toLowerCase();let ids=[];
@@ -1098,7 +1155,9 @@ function offlineExpand(topic,text){
   const na=[],ad=[];
   ids.slice(0,topic==='vision'?3:2).forEach(id=>{const a=id==='mind'?MIND:A(id);if(!a)return;const ex=AREAS_ST.find(x=>{const n=x.name.toLowerCase();return n===a.label.toLowerCase()||a.kw.includes(n)});
     if(ex)ad.push({area:ex.name,todos:a.start.slice(0,2)});else na.push({name:a.label,template:TPL_OF_SLOT[a.slot],why:'',todos:a.start.slice()})});
-  return{ack:'',question:'',hint:'',options:[],done:true,message:na.length||ad.length?'Here is what I would add.':'',new_areas:na,additions:ad};
+  const tapped=TOPICS.vision.opts.find(o=>o.toLowerCase()===text.trim().toLowerCase());
+  const goals=topic!=='vision'?[]:tapped?[tapped]:text.split(/[.;\n]|,\s+(?=i\s)|\s+and\s+(?=i\s)/i).map(x=>x.trim().replace(/^(?:i\s+want\s+to|i'?d\s+like\s+to|to)\s+/i,'')).filter(x=>x.length>3&&x.length<=60).slice(0,4).map(x=>x.charAt(0).toUpperCase()+x.slice(1));
+  return{ack:'',question:'',hint:'',options:[],done:true,goals,message:na.length||ad.length?'Here is what I would add.':'',new_areas:na,additions:ad};
 }
 function showResult(j){
   sh.mode='result';sh.result=j;
@@ -1173,8 +1232,73 @@ document.getElementById('shx').onclick=()=>{if(sh.mode==='chat')exp.next=doneCou
 shta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();sheetGo()}});
 document.getElementById('dumpb').onclick=openDump;
 addEventListener('keydown',e=>{if(e.key==='Escape'&&shw.classList.contains('show')&&!sh.busy){if(sh.mode==='chat')exp.next=doneCount+5;closeSheet()}});
-startDemo();
-openSetup();
+/* Showcase mode (index.html?show=grow|start|life|chest|full): the real house on autopilot, no UI. Used by the landing page. */
+const SHOW_ROOMS=[{name:'Work',tpl:'desk'},{name:'Family',tpl:'living'},{name:'Running',tpl:'gym'},{name:'French',tpl:'nook'},{name:'Studio',tpl:'desk'},{name:'Friends',tpl:'living'},{name:'Sleep',tpl:'gym'},{name:'Guitar',tpl:'nook'},{name:'Home',tpl:'living'}];
+const SHOW_STILL=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const swait=ms=>new Promise(res=>{let left=ms,t0=performance.now();const tick=()=>{const t=performance.now();if(!PAUSED)left-=t-t0;t0=t;if(left<=0)res();else setTimeout(tick,60)};setTimeout(tick,60)});
+function showPost(m){if(parent!==window)parent.postMessage(Object.assign({lh:'stage'},m),location.origin)}
+function showSet(n,state){setLayout(SHOW_ROOMS.slice(0,n).map((r,i)=>{const s=state[i]||{w:.2,lv:0};return{name:r.name,tpl:r.tpl,w:s.w,dw:s.dw??s.w,lv:s.lv}}))}
+function ownedOf(ri){return rooms[ri].items.filter(it=>it.own).length}
+function grant(ri,count,gap,quiet){const now=performance.now();let d=150,c=0;for(const it of rooms[ri].items){if(c>=count)break;if(!it.own){it.own=true;it.t0=now+d;it.landed=c&&(quiet||c%2)?1:0;d+=gap||260;c++}}return c}
+function pop(ri,big){const r=rooms[ri],[sx,sy]=proj(r.ox+44,r.oy+44,8);burst(sx,sy,big?20:10,!!big)}
+function snapshot(){return rooms.map(r=>({w:r.w,dw:r.dw,lv:r.items.filter(it=>it.own).length}))}
+function fullState(n){return Array.from({length:n},()=>({w:1,lv:99}))}
+
+const SHOWS={
+  async grow(){
+    const stages=[{n:1,label:'Day 1',sub:'One small room'},{n:2,label:'Week 1',sub:'A second part of life'},{n:4,label:'Month 1',sub:'Four rooms, lights on'},{n:6,label:'Month 3',sub:'Six rooms'},{n:9,label:'Month 6',sub:'The whole house'}];
+    if(SHOW_STILL){showSet(9,fullState(9));showPost({label:'Month 6',sub:'The whole house',i:4,of:5});return}
+    for(;;){
+      showSet(1,[{w:.18,lv:0}]);showPost(Object.assign({i:0,of:5},stages[0]));await swait(1100);
+      rooms[0].w=1;pop(0,true);grant(0,2);await swait(2600);
+      for(let s=1;s<stages.length;s++){
+        const st=stages[s],prev=snapshot(),from=prev.length;
+        showSet(st.n,prev);showPost(Object.assign({i:s,of:5},st));await swait(500);
+        for(let ri=0;ri<from;ri++)if(grant(ri,1))pop(ri,false);
+        for(let ri=from;ri<st.n;ri++){await swait(450);rooms[ri].w=1;pop(ri,true);grant(ri,s===stages.length-1?99:2,0,s===stages.length-1)}
+        if(s===stages.length-1){await swait(700);for(let ri=0;ri<rooms.length;ri++){if(rooms[ri].spare)continue;grant(ri,99,180,true)}await swait(5200)}
+        else await swait(2400);
+      }
+    }
+  },
+  async start(){
+    if(SHOW_STILL){showSet(1,[{w:1,lv:3}]);return}
+    for(;;){
+      showSet(1,[{w:.18,lv:0}]);showPost({caption:'Your first room starts dim and empty.'});await swait(1600);
+      rooms[0].w=1;pop(0,true);grant(0,2);showPost({caption:'Finish one tiny thing. Lights on.'});await swait(3200);
+      pop(0,false);grant(0,1);showPost({caption:'Another one. Another piece of furniture.'});await swait(3400);
+    }
+  },
+  async life(){
+    showSet(4,[{w:1,lv:4},{w:1,lv:5},{w:.15,lv:3},{w:1,lv:3}]);
+    if(SHOW_STILL)return;
+    const order=[[2,0],[0,3],[3,1],[1,2]];
+    for(;;)for(const [on,off] of order){
+      await swait(1800);rooms[on].w=1;pop(on,true);showPost({caption:`Finished something in ${rooms[on].name}. Lights on.`});
+      await swait(2600);rooms[off].w=.15;showPost({caption:`${rooms[off].name} has waited a while. It dims, nothing more.`});
+    }
+  },
+  async chest(){
+    showSet(1,[{w:1,lv:2}]);
+    if(SHOW_STILL)return;
+    for(;;){
+      await swait(1300);
+      let next=rooms[0].items.find(it=>!it.own);
+      if(!next){showSet(1,[{w:1,lv:2}]);await swait(900);next=rooms[0].items.find(it=>!it.own)}
+      pop(0,false);openChest(0);chest.item=next;chest.full=false;await swait(1700);
+      cbtn.onclick();await swait(2300);
+      cbtn.onclick();await swait(2600);
+    }
+  },
+  async full(){
+    showSet(9,fullState(9));
+    if(SHOW_STILL)return;
+    for(;;){await swait(1600+Math.random()*1200);pop(Math.floor(Math.random()*rooms.length),Math.random()<.3)}
+  },
+};
+function startShow(m){(SHOWS[m]||SHOWS.full)()}
+addEventListener('message',e=>{if(e.origin!==location.origin||!e.data)return;if(e.data.lh==='pause')PAUSED=true;else if(e.data.lh==='play')PAUSED=false});
+if(SHOW)startShow(SHOW);else{startDemo();openSetup()}
 requestAnimationFrame(loop);
 </script>
 </body>

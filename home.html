@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Life House: build the life you want, one room at a time</title>
+<meta name="description" content="Life House turns your life into a little pixel house. Each part of your life is a room. Each small thing you finish turns on a light, opens a treasure chest, and grows your home.">
+<meta property="og:title" content="Life House">
+<meta property="og:description" content="Build the life you want, one room at a time. A cozy planner for brains that hate planners.">
+<meta name="theme-color" content="#14161f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14161f;--bg2:#1b1d2b;--panel:#24273a;--panel2:#262a3d;--line:#3a3e58;--edge:#0c0d14;
+  --ink:#f3eadc;--muted:#b4b0cf;--acc:#ffcf6b;--acc-ink:#3a2a10;--acc-sh:#a07a2a;
+  --grass:#74ad58;--grass-d:#4f8a3e;--brick:#c9584b;--sky:#a8e4ff;--rare:#c59bff;
+  --px:'Pixelify Sans',system-ui,sans-serif;--body:'Nunito',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img,svg,canvas{display:block}
+.px{image-rendering:pixelated;shape-rendering:crispEdges}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--px);font-weight:600;line-height:1.12;margin:0;letter-spacing:.2px;text-wrap:balance}
+h1{font-size:clamp(40px,6.6vw,76px)}
+h2{font-size:clamp(30px,4.4vw,48px)}
+h3{font-size:clamp(21px,2.3vw,26px)}
+p{margin:0}
+.eyebrow{font-family:var(--px);font-size:15px;color:var(--acc);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.lead{font-size:clamp(18px,1.9vw,21px);color:var(--muted);max-width:640px}
+.lead b{color:var(--ink);font-weight:700}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--px);font-size:19px;text-decoration:none;color:var(--acc-ink);background:var(--acc);border:2px solid #11131d;padding:13px 22px;box-shadow:0 5px 0 var(--acc-sh);transition:transform .08s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 0 var(--acc-sh)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--acc-sh)}
+.btn.small{font-size:16px;padding:8px 14px;box-shadow:0 4px 0 var(--acc-sh)}
+.link{font-family:var(--px);font-size:18px;color:var(--ink);text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(255,255,255,.35)}
+.link:hover{text-decoration-color:var(--acc)}
+a:focus-visible,button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:10;background:rgba(20,22,31,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:2px solid rgba(255,255,255,.06)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--px);font-size:22px;text-decoration:none}
+.logo svg{width:28px;height:28px}
+.nav .links{display:flex;align-items:center;gap:22px}
+.nav .links a.plain{font-family:var(--px);font-size:16px;color:var(--muted);text-decoration:none}
+.nav .links a.plain:hover{color:var(--ink)}
+@media (max-width:640px){.nav .links a.plain{display:none}}
+
+/* hero */
+.hero{position:relative;padding:clamp(44px,8vw,96px) 0 clamp(56px,8vw,96px);background:
+  radial-gradient(1200px 500px at 50% -10%,rgba(120,110,200,.22),transparent 70%),
+  linear-gradient(180deg,#191b2e 0%,var(--bg) 100%)}
+.stars{position:absolute;inset:0;pointer-events:none;opacity:.55;background-image:
+  radial-gradient(circle,#fff 1px,transparent 1.5px),radial-gradient(circle,#ffe6a8 1px,transparent 1.5px),radial-gradient(circle,#cfd8ff 1px,transparent 1.5px);
+  background-size:180px 140px,260px 210px,330px 260px;background-position:20px 30px,90px 120px,200px 60px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 60%);mask-image:linear-gradient(180deg,#000 0%,transparent 60%)}
+.hero-copy{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;margin-bottom:clamp(36px,5vw,56px)}
+.hero-copy .lead{margin:0 auto}
+@media (max-width:640px){.hero-copy h1 br{display:none}}
+.ctas{display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.note{font-size:15px;color:var(--muted)}
+
+/* house frames (the real app, in showcase mode) */
+.frame{position:relative;background:var(--grass);border:3px solid var(--edge);box-shadow:0 8px 0 var(--edge);overflow:hidden;aspect-ratio:4/3}
+.frame::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);pointer-events:none}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;display:block}
+.frame.hero-f{aspect-ratio:2/1}
+@media (max-width:700px){.frame.hero-f{aspect-ratio:1/1}.frame.tall{aspect-ratio:4/5}}
+.badge{position:absolute;left:14px;top:14px;z-index:1;display:flex;align-items:baseline;gap:10px;font-family:var(--px);background:rgba(20,22,31,.84);border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 0 rgba(12,13,20,.6);padding:8px 14px}
+.badge b{font-weight:600;font-size:20px;color:var(--acc)}
+.badge span{font-size:15px;color:var(--ink)}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:22px}
+.tick{font-family:var(--px);font-size:14px;color:var(--muted);text-align:center}
+.tick i{display:block;height:10px;background:var(--line);margin-bottom:8px;transition:background .3s}
+.tick.on i{background:var(--acc)}
+.tick.now{color:var(--ink)}
+.cap{font-size:15px;color:var(--muted);margin-top:16px;min-height:24px;transition:opacity .3s}
+.cap::before{content:"▸ ";color:var(--acc)}
+
+/* game loop band */
+.loop{background:var(--bg2);border-top:2px solid rgba(255,255,255,.05);border-bottom:2px solid rgba(255,255,255,.05);padding:clamp(40px,6vw,64px) 0}
+.loop h2{text-align:center;font-size:clamp(24px,3.2vw,34px);margin-bottom:clamp(26px,4vw,40px)}
+.loop ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:l}
+.loop li{position:relative;background:var(--panel2);border:2px solid var(--line);box-shadow:0 5px 0 var(--edge);padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px}
+.loop li svg{width:40px;height:40px;margin-bottom:4px}
+.loop li b{font-family:var(--px);font-weight:600;font-size:20px;line-height:1.2}
+.loop li span{font-size:15px;color:var(--muted);line-height:1.45}
+.loop li:not(:last-child)::after{content:"";position:absolute;right:-15px;top:50%;width:12px;height:12px;background:var(--acc);clip-path:polygon(0 0,100% 50%,0 100%);transform:translateY(-50%);z-index:1}
+@media (max-width:860px){.loop ol{grid-template-columns:repeat(2,1fr)}.loop li::after{display:none}}
+@media (max-width:420px){.loop ol{grid-template-columns:1fr}}
+
+/* sections */
+section.s{padding:clamp(64px,10vw,128px) 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,72px);align-items:center}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.head{max-width:720px;margin-bottom:clamp(32px,5vw,56px)}
+.head .lead{margin-top:18px}
+.cards{display:flex;flex-direction:column;gap:14px;margin-top:30px}
+.rc{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start;background:var(--panel2);border:2px solid var(--line);box-shadow:0 5px 0 var(--edge);padding:16px 18px}
+.rc .dot{grid-row:span 2;width:14px;height:14px;margin-top:6px;background:var(--acc);box-shadow:0 0 0 3px rgba(255,207,107,.22)}
+.rc .dot.dim{background:#5d6288;box-shadow:none}
+.rc .dot.blue{background:var(--sky);box-shadow:0 0 0 3px rgba(168,228,255,.18)}
+.rc b{font-family:var(--px);font-weight:600;font-size:19px;line-height:1.3}
+.rc span{font-size:16px;color:var(--muted);line-height:1.5}
+
+/* how to start */
+.how{background:linear-gradient(180deg,var(--bg) 0%,#171a29 50%,var(--bg) 100%)}
+.steps{display:flex;flex-direction:column;gap:clamp(64px,9vw,112px)}
+.step{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(28px,5vw,64px);align-items:center}
+.step:nth-child(even) .stxt{order:2}
+@media (max-width:860px){.step{grid-template-columns:1fr}.step:nth-child(even) .stxt{order:0}}
+.num{display:inline-grid;place-items:center;width:44px;height:44px;font-family:var(--px);font-size:22px;font-weight:600;color:var(--acc-ink);background:var(--acc);border:2px solid #11131d;box-shadow:0 4px 0 var(--acc-sh);margin-bottom:18px}
+.stxt h3{margin-bottom:12px}
+.stxt p{color:var(--muted);font-size:18px}
+.stxt p+p{margin-top:12px}
+.kbd{font-family:var(--px);color:var(--ink);background:var(--panel2);border:2px solid var(--line);padding:0 6px;font-size:16px;white-space:nowrap}
+
+/* app mocks: same look as the real app */
+.mock{background:var(--bg2);border:3px solid var(--edge);box-shadow:0 8px 0 var(--edge);padding:clamp(18px,3vw,28px);font-family:var(--px);position:relative}
+.mock .mtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.mock .mstep{font-size:14px;color:var(--acc);letter-spacing:.5px}
+.mock .mq{font-size:clamp(21px,2.4vw,27px);font-weight:600;line-height:1.2;margin:10px 0 8px;max-width:440px}
+.mock .mh{font-family:var(--body);font-size:15px;color:var(--muted)}
+.mock canvas.capy{width:108px;height:84px;flex:none}
+.ta{position:relative;margin-top:18px;background:#14161f;border:3px solid var(--acc);min-height:132px;padding:14px 16px 58px;font-size:19px;line-height:1.45}
+.ta .caret{display:inline-block;width:2px;height:1.1em;background:var(--acc);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.mic{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:8px;font-size:15px;padding:6px 12px;background:var(--panel2);border:2px solid var(--line);box-shadow:0 3px 0 #11131d}
+.mic i{width:10px;height:10px;border-radius:50%;background:#ff6f6f}
+.mrow{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px}
+.mrow .skip{font-size:15px;color:var(--muted);text-decoration:underline}
+.fakebtn{font-size:16px;padding:8px 18px;background:var(--acc);color:var(--acc-ink);border:2px solid #11131d;box-shadow:0 4px 0 var(--acc-sh)}
+.pick{margin-top:18px;background:rgba(27,29,43,.92);border:3px solid var(--edge);box-shadow:0 8px 0 var(--edge);padding:12px 14px 14px;font-family:var(--px)}
+.pick .ph{font-size:18px;font-weight:600;margin-bottom:10px}
+.pick .pc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.pick .pc{grid-template-columns:1fr}}
+.mc{background:var(--panel2);border:2px solid var(--line);padding:9px 10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mc .r{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.mc .r i{width:8px;height:8px;background:#5d6288}
+.mc .r i.lit{background:var(--acc)}
+.mc .t{font-size:15px;line-height:1.25}
+.mc .tg{display:flex;gap:5px;flex-wrap:wrap}
+.mc .tg span{font-size:11px;padding:0 5px;border:2px solid #5d6288;color:#e2dacd}
+.mc .d{align-self:flex-start;font-size:13px;padding:3px 10px;background:var(--acc);color:var(--acc-ink);border:2px solid #11131d;box-shadow:0 2px 0 var(--acc-sh);margin-top:2px}
+.sheet .ack{font-size:15px;color:var(--acc)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.pills span{font-size:15px;padding:7px 12px;background:var(--panel2);border:2px solid var(--line);box-shadow:0 3px 0 #11131d;transition:background .25s,color .25s,border-color .25s}
+.pills span.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);box-shadow:0 3px 0 var(--acc-sh)}
+.result{margin-top:16px;background:var(--panel2);border:2px solid var(--line);padding:12px 14px;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}
+.result.show{opacity:1;transform:none}
+.result .rh{font-size:15px;color:var(--acc);margin-bottom:6px}
+.result ul{margin:0;padding-left:18px;font-family:var(--body);font-size:15px;line-height:1.55;color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.ta .caret{animation:none}.result{transition:none}}
+
+/* AI */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:960px){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.tiles{grid-template-columns:1fr}}
+.tile{background:var(--panel2);border:2px solid var(--line);box-shadow:0 5px 0 var(--edge);padding:20px 20px 22px;display:flex;flex-direction:column;gap:10px}
+.tile svg{width:36px;height:36px}
+.tile b{font-family:var(--px);font-weight:600;font-size:20px;line-height:1.25}
+.tile span{font-size:16px;color:var(--muted);line-height:1.5}
+
+/* finale */
+.finale{padding:clamp(64px,10vw,120px) 0 clamp(72px,10vw,128px);background:linear-gradient(180deg,var(--bg) 0%,#16231a 100%)}
+.finale .head{margin:0 auto clamp(30px,4vw,44px);text-align:center}
+.finale .head .lead{margin:16px auto 0}
+.finale .frame{aspect-ratio:16/9}
+@media (max-width:700px){.finale .frame{aspect-ratio:1/1}}
+.finale .ctas{margin-top:clamp(32px,4vw,44px)}
+footer{background:#101810;border-top:2px solid rgba(255,255,255,.05);padding:28px 0 calc(28px + env(safe-area-inset-bottom,0px));font-size:15px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+footer .logo{font-size:18px;color:var(--ink)}
+footer .logo svg{width:22px;height:22px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-house" viewBox="0 0 12 12"><rect x="5" y="1" width="2" height="1" fill="#c9584b"/><rect x="4" y="2" width="4" height="1" fill="#c9584b"/><rect x="3" y="3" width="6" height="1" fill="#c9584b"/><rect x="2" y="4" width="8" height="1" fill="#c9584b"/><rect x="1" y="5" width="10" height="1" fill="#8a3a2a"/><rect x="2" y="6" width="8" height="5" fill="#f3eadc"/><rect x="2" y="10" width="8" height="1" fill="#cbbfa8"/><rect x="5" y="8" width="2" height="3" fill="#5e3b26"/><rect x="3" y="7" width="1" height="1" fill="#ffcf6b"/><rect x="8" y="7" width="1" height="1" fill="#ffcf6b"/></symbol>
+    <symbol id="i-check" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" fill="#0c0d14"/><rect x="2" y="2" width="8" height="8" fill="#f3eadc"/><rect x="3" y="6" width="1" height="1" fill="#4f8a3e"/><rect x="4" y="7" width="1" height="1" fill="#4f8a3e"/><rect x="5" y="8" width="1" height="1" fill="#4f8a3e"/><rect x="6" y="7" width="1" height="1" fill="#4f8a3e"/><rect x="7" y="6" width="1" height="1" fill="#4f8a3e"/><rect x="8" y="5" width="1" height="1" fill="#4f8a3e"/><rect x="9" y="4" width="1" height="1" fill="#4f8a3e"/></symbol>
+    <symbol id="i-lamp" viewBox="0 0 12 12"><rect x="0" y="4" width="1" height="1" fill="#ffe6a8"/><rect x="11" y="4" width="1" height="1" fill="#ffe6a8"/><rect x="1" y="1" width="1" height="1" fill="#ffe6a8"/><rect x="10" y="1" width="1" height="1" fill="#ffe6a8"/><rect x="4" y="1" width="4" height="1" fill="#ffcf6b"/><rect x="3" y="2" width="6" height="1" fill="#ffcf6b"/><rect x="2" y="3" width="8" height="2" fill="#ffcf6b"/><rect x="2" y="5" width="8" height="1" fill="#d99a2e"/><rect x="5" y="6" width="2" height="3" fill="#a9a5c6"/><rect x="3" y="9" width="6" height="2" fill="#6b6f92"/></symbol>
+    <symbol id="i-chest" viewBox="0 0 12 12"><rect x="1" y="2" width="10" height="9" fill="#3b2418"/><rect x="2" y="3" width="8" height="3" fill="#b97c4e"/><rect x="2" y="6" width="8" height="1" fill="#3b2418"/><rect x="2" y="7" width="8" height="3" fill="#9a6240"/><rect x="3" y="3" width="1" height="7" fill="#e0b44c"/><rect x="8" y="3" width="1" height="7" fill="#e0b44c"/><rect x="5" y="5" width="2" height="3" fill="#e0b44c"/><rect x="5" y="6" width="2" height="1" fill="#a87a24"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 12 12"><rect x="0" y="3" width="4" height="7" fill="#5d6288"/><rect x="4" y="2" width="4" height="8" fill="#f3eadc"/><rect x="5" y="4" width="2" height="1" fill="#6b6f92"/><rect x="5" y="6" width="2" height="1" fill="#6b6f92"/><rect x="8" y="3" width="4" height="7" fill="#5d6288"/><rect x="4" y="10" width="4" height="1" fill="#ffcf6b"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 12 12"><rect x="2" y="1" width="1" height="10" fill="#a9a5c6"/><rect x="3" y="1" width="7" height="1" fill="#c9584b"/><rect x="3" y="2" width="6" height="2" fill="#e06b5c"/><rect x="3" y="4" width="7" height="1" fill="#c9584b"/><rect x="1" y="10" width="4" height="1" fill="#6b6f92"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="7" fill="#a8e4ff"/><rect x="2" y="8" width="3" height="1" fill="#a8e4ff"/><rect x="2" y="9" width="1" height="1" fill="#a8e4ff"/><rect x="3" y="4" width="1" height="1" fill="#1b1d2b"/><rect x="5" y="4" width="1" height="1" fill="#1b1d2b"/><rect x="7" y="4" width="1" height="1" fill="#1b1d2b"/><rect x="9" y="4" width="1" height="1" fill="#1b1d2b"/></symbol>
+    <symbol id="i-note" viewBox="0 0 12 12"><rect x="2" y="1" width="8" height="10" fill="#f3eadc"/><rect x="2" y="1" width="8" height="2" fill="#ffcf6b"/><rect x="3" y="5" width="6" height="1" fill="#7d7a99"/><rect x="3" y="7" width="6" height="1" fill="#7d7a99"/><rect x="3" y="9" width="4" height="1" fill="#7d7a99"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Life House, back to top"><svg class="px" aria-hidden="true"><use href="#i-house"/></svg>Life House</a>
+    <nav class="links" aria-label="Main">
+      <a class="plain" href="#idea">The idea</a>
+      <a class="plain" href="#how">How it works</a>
+      <a class="btn small" href="index.html">Open the app</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">A cozy planner for brains that hate planners</p>
+        <h1>Build the life you want,<br>one room at a time.</h1>
+        <p class="lead">Life House turns your life into a little pixel house. Each part of your life is a room. Each small thing you finish turns on a light, opens a treasure chest, and adds something to your home.</p>
+        <div class="ctas">
+          <a class="btn" href="index.html">Start your house</a>
+          <a class="link" href="#how">See how it works</a>
+        </div>
+        <p class="note">Two questions and you're in.</p>
+      </div>
+      <figure style="margin:0">
+        <div class="frame hero-f">
+          <div class="badge" aria-hidden="true"><b id="stLabel">Day 1</b><span id="stSub">One small room</span></div>
+          <iframe src="index.html?show=grow" title="A pixel house growing from one room to nine" aria-hidden="true" tabindex="-1"></iframe>
+        </div>
+        <div class="timeline" aria-hidden="true">
+          <div class="tick on now"><i></i>Day 1</div><div class="tick"><i></i>Week 1</div><div class="tick"><i></i>Month 1</div><div class="tick"><i></i>Month 3</div><div class="tick"><i></i>Month 6</div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="loop" aria-labelledby="loopT">
+    <div class="wrap">
+      <h2 id="loopT">It plays like a game. It works like a planner.</h2>
+      <ol>
+        <li><svg class="px" aria-hidden="true"><use href="#i-check"/></svg><b>Do one small thing</b><span>Something that takes minutes, picked for today.</span></li>
+        <li><svg class="px" aria-hidden="true"><use href="#i-lamp"/></svg><b>The lights come on</b><span>That part of your life glows again.</span></li>
+        <li><svg class="px" aria-hidden="true"><use href="#i-chest"/></svg><b>Open a chest</b><span>Common, rare or epic furniture for that room.</span></li>
+        <li><svg class="px" aria-hidden="true"><use href="#i-house"/></svg><b>Your house grows</b><span>New rooms for the parts of life you want more of.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="s" id="idea" aria-labelledby="ideaT">
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow">The idea</p>
+        <h2 id="ideaT">Your life, built like a house.</h2>
+        <p class="lead" style="margin-top:18px">Most planners hand you a list that never ends. Life House gives you a home that grows with you. You start with one small room and a few tiny steps. As you get things done, rooms light up, fill with furniture, and new ones appear.</p>
+        <div class="cards">
+          <div class="rc"><i class="dot blue" aria-hidden="true"></i><b>Every part of your life is a room</b><span>Work, family, running, the guitar you keep meaning to pick up. Each one gets a room of its own.</span></div>
+          <div class="rc"><i class="dot" aria-hidden="true"></i><b>Lights show where your energy went</b><span>Finish something and that room lights up. Leave it for a while and it dims. No red badges, no streak to break. One small task brings the light back.</span></div>
+          <div class="rc"><i class="dot dim" aria-hidden="true"></i><b>Furniture is proof of progress</b><span>Every finished task opens a chest with something for that room. Months later, you can look around and see what you did.</span></div>
+        </div>
+      </div>
+      <figure style="margin:0">
+        <div class="frame"><iframe src="index.html?show=life" loading="lazy" title="Four rooms whose lights turn on and dim" aria-hidden="true" tabindex="-1"></iframe></div>
+        <figcaption class="cap" data-cap>Finish something in a room and its lights come on.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="s how" id="how" aria-labelledby="howT">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">How to start</p>
+        <h2 id="howT">Small on purpose.</h2>
+        <p class="lead">Big plans are where most of us get stuck. So Life House starts tiny, and grows only as fast as you do.</p>
+      </div>
+      <div class="steps">
+
+        <div class="step">
+          <div class="stxt">
+            <div class="num">1</div>
+            <h3>Answer two questions</h3>
+            <p>Your name, and what has to happen this week. That's the whole setup.</p>
+            <p>Type it, or just talk. The AI turns whatever you say into a first room and a few small to-dos.</p>
+          </div>
+          <div class="mock" aria-label="The setup screen asking what has to happen in the next 7 days">
+            <div class="mtop"><div><div class="mstep">Step 2 of 2 · This week</div><div class="mq">What has to happen in the next 7 days?</div><div class="mh">Deadlines, bills, replies you owe someone. Any order.</div></div><canvas class="capy px" id="capy" width="36" height="28" aria-hidden="true"></canvas></div>
+            <div class="ta"><span id="typed"></span><span class="caret" aria-hidden="true"></span><span class="mic" aria-hidden="true"><i></i>Talk</span></div>
+            <div class="mrow"><span class="skip">Skip this one</span><span class="fakebtn">Next</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stxt">
+            <div class="num">2</div>
+            <h3>Get one room and three choices</h3>
+            <p>Your house starts as a single, dim room. Life House picks three small to-dos to choose from: a quick one, one that's due soon, and one that moves you forward.</p>
+            <p>You pick where to start. The app never shows you the whole pile.</p>
+          </div>
+          <figure style="margin:0">
+            <div class="frame"><iframe src="index.html?show=start" loading="lazy" title="One small room lighting up and filling with furniture" aria-hidden="true" tabindex="-1"></iframe></div>
+            <div class="pick" aria-label="Three to-do cards to pick from">
+              <div class="ph">Pick one to start</div>
+              <div class="pc">
+                <div class="mc"><div class="r"><i class="lit"></i>Money</div><div class="t">Pay rent</div><div class="tg"><span>10 min or less</span><span>due tomorrow</span></div><span class="d">Done</span></div>
+                <div class="mc"><div class="r"><i></i>MBA</div><div class="t">Finish the problem set</div><div class="tg"><span>due Fri</span></div><span class="d">Done</span></div>
+                <div class="mc"><div class="r"><i></i>Recruiting</div><div class="t">Reply to Sarah about coffee</div><div class="tg"><span>10 min or less</span></div><span class="d">Done</span></div>
+              </div>
+            </div>
+          </figure>
+        </div>
+
+        <div class="step">
+          <div class="stxt">
+            <div class="num">3</div>
+            <h3>Finish things, open chests</h3>
+            <p>Every to-do you finish opens a treasure chest. Inside: furniture for that room, from common to epic. Doing stuff earns you something you can see.</p>
+            <p>Stuck on a big one? Tap <span class="kbd">Break it down</span> and get steps that take minutes. Every step gets its own chest.</p>
+          </div>
+          <figure style="margin:0">
+            <div class="frame tall"><iframe src="index.html?show=chest" loading="lazy" title="A treasure chest opening and its furniture dropping into the room" aria-hidden="true" tabindex="-1"></iframe></div>
+          </figure>
+        </div>
+
+        <div class="step">
+          <div class="stxt">
+            <div class="num">4</div>
+            <h3>Grow into the life you want</h3>
+            <p>Once you have some momentum, Life House asks one gentle question at a time. Where do you want to be in a year? A hobby you miss? How are you sleeping?</p>
+            <p>Your answer becomes a new room with easy first steps, aimed at where you want to go.</p>
+          </div>
+          <div class="mock sheet" id="checkin" aria-label="A check-in asking what you want your life to look like in 12 months">
+            <div class="ack">Nice work so far. Can we zoom out for a second?</div>
+            <div class="mq">In 12 months, what do you want your life to look like?</div>
+            <div class="pills"><span>Healthier and more active</span><span data-pick>Calmer, less stressed</span><span>Further in my career</span><span>Closer to people I love</span><span>Learning something new</span></div>
+            <div class="result" id="result"><div class="rh">New area: Sleep</div><ul><li>Move your phone charger out of reach of the bed</li><li>Put a book by the bed for winding down</li><li>Lights out 15 minutes earlier this week</li></ul></div>
+            <div class="mrow"><span class="skip">Later</span><span class="fakebtn">Add to my house</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="s" aria-labelledby="aiT">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Tailored to you</p>
+        <h2 id="aiT">AI does the planning, so you don't have to.</h2>
+        <p class="lead">Life House uses AI where it actually helps: understanding what you said, and turning it into small, doable steps toward where you want to be. Everything else stays simple.</p>
+      </div>
+      <div class="tiles">
+        <div class="tile"><svg class="px" aria-hidden="true"><use href="#i-flag"/></svg><b>Assignments that fit your goals</b><span>Your to-dos come from your week and your goals, already turned into first steps.</span></div>
+        <div class="tile"><svg class="px" aria-hidden="true"><use href="#i-cards"/></svg><b>Three cards, not fifty</b><span>You never face the whole list. Just three good options, picked fresh each time.</span></div>
+        <div class="tile"><svg class="px" aria-hidden="true"><use href="#i-chat"/></svg><b>Check-ins at the right time</b><span>Questions show up after you've been getting things done. Never when something is due today.</span></div>
+        <div class="tile"><svg class="px" aria-hidden="true"><use href="#i-note"/></svg><b>A brain dump for 2 a.m. thoughts</b><span>Tap the notepad, say what's on your mind, and it gets sorted into the right room.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="finale" aria-labelledby="finT">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Six months from now</p>
+        <h2 id="finT">Every room lit. Every chair earned.</h2>
+        <p class="lead">It starts with one small room and one small thing.</p>
+      </div>
+      <div class="frame"><iframe src="index.html?show=full" loading="lazy" title="A finished pixel house with nine lit, furnished rooms" aria-hidden="true" tabindex="-1"></iframe></div>
+      <div class="ctas"><a class="btn" href="index.html">Lay the first brick</a></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo"><svg class="px" aria-hidden="true"><use href="#i-house"/></svg>Life House</span>
+    <span>An early version, shared with friends. Every pixel is drawn in code.</span>
+  </div>
+</footer>
+
+<script>
+(()=>{
+const STILL=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* play only the houses you can see */
+const frames=[...document.querySelectorAll('.frame iframe')],vis=new Map();
+const send=(f,on)=>{try{f.contentWindow.postMessage({lh:on?'play':'pause'},location.origin)}catch(_){}};
+const io=new IntersectionObserver(es=>es.forEach(e=>{const on=e.isIntersecting;vis.set(e.target,on);send(e.target,on)}),{threshold:.12});
+frames.forEach(f=>{io.observe(f);f.addEventListener('load',()=>send(f,vis.get(f)!==false))});
+
+/* the houses report what they're showing */
+const ticks=[...document.querySelectorAll('.tick')];
+addEventListener('message',e=>{
+  if(e.origin!==location.origin||!e.data||e.data.lh!=='stage')return;
+  const f=frames.find(x=>x.contentWindow===e.source);if(!f)return;const d=e.data;
+  if(d.label){document.getElementById('stLabel').textContent=d.label;document.getElementById('stSub').textContent=d.sub||'';
+    ticks.forEach((t,i)=>{t.classList.toggle('on',i<=d.i);t.classList.toggle('now',i===d.i)})}
+  if(d.caption){const cap=f.closest('figure')&&f.closest('figure').querySelector('[data-cap]');if(cap)cap.textContent=d.caption}
+});
+
+/* the setup capybara, same pixels as in the app */
+(function(){const cv=document.getElementById('capy'),g=cv.getContext('2d'),W=36,H=28;
+  const P={K:'#3b2417',B:'#c08552',L:'#d9a16c',D:'#a46c40',M:'#7d4a2c',E:'#b07444',F:'#8f5634',f:'#7a4628',R:'#f08a7a',W:'#ffffff',O:'#f5a03d',Q:'#d9822a',H:'#ffd08a',G:'#6cb552'};
+  const inE=(x,y,cx,cy,rx,ry)=>((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1;
+  const S=[...Array(H)].map(()=>Array(W).fill(null));const solid=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&S[y][x]!==null;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const body=inE(x,y,21,14.5,12.5,8.5),head=inE(x,y,10.5,12.5,8.5,6.5),snout=inE(x,y,6,13,5,4.6);
+    const nearLeg=y>=19&&y<=25&&((x>=11&&x<=14)||(x>=26&&x<=30)),farLeg=y>=19&&y<=24&&((x>=16&&x<=18)||(x>=22&&x<=24));
+    let c=null;if(farLeg)c=y>=23?'f':'D';if(inE(x,y,14.5,6.2,1.7,1.7)||inE(x,y,17.6,6.8,2,2))c='E';
+    if(body||head||snout)c=(x<=7&&(head||snout))?'M':(y>=20?'D':'B');if(nearLeg&&!(body||head))c=y>=24?'F':'B';S[y][x]=c}
+  for(let y=1;y<H;y++)for(let x=0;x<W;x++)if(S[y][x]==='B'&&S[y-1][x]===null&&y<14&&x>8)S[y][x]='L';
+  S[7][17]='M';S[7][18]='M';
+  for(let y=0;y<9;y++)for(let x=6;x<17;x++){const d=Math.hypot(x+.5-11.5,y+.5-4.2);if(d<=3.1)S[y][x]=d>2.2?'K':(x>12&&y>4?'Q':'O')}
+  S[3][10]='H';S[2][11]='H';S[1][14]='G';S[1][15]='G';S[0][15]='G';S[0][16]='G';
+  const out=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(S[y][x]===null&&(solid(x-1,y)||solid(x+1,y)||solid(x,y-1)||solid(x,y+1)))out.push([x,y]);
+  out.forEach(([x,y])=>S[y][x]='K');
+  S[10][12]='K';S[10][13]='W';S[11][12]='K';S[11][13]='K';S[11][4]='K';S[16][5]='K';S[16][6]='K';S[13][15]='R';S[13][16]='R';S[14][15]='R';
+  g.fillStyle='rgba(0,0,0,.18)';g.fillRect(9,26,23,2);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=S[y][x];if(c){g.fillStyle=P[c];g.fillRect(x,y,1,1)}}
+})();
+
+/* step 1: someone typing their week */
+const typed=document.getElementById('typed'),TEXT="Finish the finance problem set by Friday, reply to Sarah about the coffee chat, and pay rent tomorrow";
+let typing=false;
+async function typeLoop(){if(typing)return;typing=true;
+  if(STILL){typed.textContent=TEXT;return}
+  for(;;){typed.textContent='';for(let i=1;i<=TEXT.length;i++){typed.textContent=TEXT.slice(0,i);await new Promise(r=>setTimeout(r,TEXT[i-1]===','?260:38+Math.random()*40))}
+    await new Promise(r=>setTimeout(r,3200))}}
+/* step 4: tapping an option, the AI answers with a new room */
+const pick=document.querySelector('[data-pick]'),result=document.getElementById('result');let checking=false;
+async function checkLoop(){if(checking)return;checking=true;
+  if(STILL){pick.classList.add('on');result.classList.add('show');return}
+  for(;;){pick.classList.remove('on');result.classList.remove('show');await new Promise(r=>setTimeout(r,1400));
+    pick.classList.add('on');await new Promise(r=>setTimeout(r,1300));result.classList.add('show');await new Promise(r=>setTimeout(r,6000))}}
+const io2=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;if(e.target.id==='checkin')checkLoop();else typeLoop();io2.unobserve(e.target)}),{threshold:.4});
+io2.observe(document.querySelector('.ta'));io2.observe(document.getElementById('checkin'));
+})();
+</script>
+</body>
+</html>
